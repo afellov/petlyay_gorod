@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:walk_city/core/screens/main_screen.dart';
 import 'package:walk_city/core/widgets/app_button.dart';
 import 'package:walk_city/features/auth/data/repositories/auth_repository.dart';
 import 'package:walk_city/features/home/presentation/screens/home_screen.dart';
@@ -198,7 +199,6 @@ class _AvatarScreenState extends State<AvatarScreen> {
                       }
 
                       try {
-                        
                         // Показываем пользователю - идет загрузка
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -215,10 +215,9 @@ class _AvatarScreenState extends State<AvatarScreen> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const HomeScreen(),
+                              builder: (context) => const MainScreen(),
                             ),
-                            (route) =>
-                                false, // Очищаем историю, чтобы нельзя было вернуться назад
+                            (route) => false,
                           );
                         }
                       } catch (e) {

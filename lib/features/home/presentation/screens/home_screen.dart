@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/widgets/custom_app_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -7,9 +8,6 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // 10. АДЕКВАТНЫЙ NAVBAR
-      bottomNavigationBar: _buildBottomNav(),
-
       body: Stack(
         children: [
           // 2. ФОН СТРАНИЦЫ (Подготовлен для твоей картинки)
@@ -23,7 +21,7 @@ class HomeScreen extends StatelessWidget {
 
           SafeArea(
             child: SingleChildScrollView(
-              // 6. ОТСТУПЫ СТРАНИЦЫ 16 ПИКСЕЛЕЙ
+              // 6 ОТСТУПЫ СТРАНИЦЫ 16 ПИКСЕЛЕЙ
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,7 +29,8 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   // ШАПКА
-                  _buildCustomAppBar(),
+                  CustomAppBar(title: "ГЛАВНАЯ"),
+                  
                   const SizedBox(height: 30),
 
                   // 1. ИСПРАВЛЕННЫЙ ЗАГОЛОВОК (Без Overflow)
@@ -73,40 +72,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCustomAppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Icon(Icons.nightlight_round, size: 28),
-        const Text(
-          "ГЛАВНАЯ",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1,
-          ),
-        ),
-        Stack(
-          children: [
-            const Icon(Icons.notifications_none, size: 30),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.pink,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -491,66 +456,6 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-
-  // --- 10. АДЕКВАТНЫЙ NAVBAR ---
-  Widget _buildBottomNav() {
-    return Container(
-      height: 85,
-      padding: const EdgeInsets.only(
-        bottom: 15,
-        top: 10,
-      ), // Место под полоску айфона
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _navItem(Icons.home_filled, "Главная", isActive: true),
-          _navItem(Icons.assignment_outlined, "Задания"),
-          _navItem(Icons.map_outlined, "Карта"),
-          _navItem(Icons.shopping_bag_outlined, "Магазин"),
-          _navItem(Icons.person_outline, "Профиль"),
-        ],
-      ),
-    );
-  }
-
-  Widget _navItem(IconData icon, String label, {bool isActive = false}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isActive ? Colors.pink.shade50 : Colors.transparent,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: isActive ? Colors.pink : Colors.black,
-            size: 24,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-            color: isActive ? Colors.pink : Colors.grey.shade800,
-          ),
-        ),
-      ],
     );
   }
 }

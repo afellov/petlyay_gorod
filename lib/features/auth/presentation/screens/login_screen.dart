@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart'; // Обязательно импортируй это!
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:walk_city/core/screens/main_screen.dart';
 import 'package:walk_city/core/widgets/app_button.dart';
 import 'package:walk_city/core/widgets/custom_text_field.dart';
 import 'package:walk_city/core/widgets/password_text_field.dart';
@@ -41,9 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           // если все в порядке - перекидываем в само приложение
           if (state is AuthSuccess) {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(
+                builder: (context) => const MainScreen(),
+              ), // <--- ТЕПЕРЬ СЮДА!
             );
           }
 
@@ -226,7 +229,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         (route) =>
                                             false, // Очищаем историю, чтобы нельзя было вернуться назад
                                       );
-                                      debugPrint("Переход на экран регистрации!");
+                                      debugPrint(
+                                        "Переход на экран регистрации!",
+                                      );
                                     },
                                 ),
                               ],

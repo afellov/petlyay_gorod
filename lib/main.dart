@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:walk_city/core/network/pb_client.dart';
+import 'package:walk_city/core/screens/main_screen.dart';
 import 'package:walk_city/features/auth/data/repositories/auth_repository.dart';
 import 'package:walk_city/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:walk_city/features/auth/presentation/screens/login_screen.dart';
-import 'package:walk_city/features/home/presentation/screens/home_screen.dart';
 
 void main() async {
   // перед началом инициализируй подключение к серверу
@@ -19,16 +19,15 @@ void main() async {
   // ТИХОЕ ОБНОВЛЕНИЕ ТОКЕНА
   if (pb.authStore.isValid) {
     try {
-      
       // Пытаемся обновить токен в фоне
       await pb.collection('users').authRefresh();
       debugPrint("Токен успешно обновлен в фоне!");
     } catch (e) {
       // Если сервер сказал - токен недействителен (ex: юзера забанили в админке)
       debugPrint("Токен протух или недействителен. Очищаем.");
-      
+
       // Стираем плохой токен с диска!
-      pb.authStore.clear(); 
+      pb.authStore.clear();
     }
   }
 
@@ -54,8 +53,6 @@ void main() async {
     debugPrint("Ошибка подключения: $e");
   }
 
-  PbClient.instance.authStore.clear();
-
   runApp(
     BlocProvider(
       create: (context) => AuthBloc(AuthRepository()),
@@ -72,7 +69,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: PbClient.instance.authStore.isValid
-          ? const HomeScreen() // Если токен жив - на Главную
+          ? const MainScreen() // Если токен жив - на Главную
           : const LoginScreen(), // Иначе - логинимся
     );
   }
