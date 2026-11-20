@@ -12,6 +12,7 @@ class CustomCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
@@ -19,15 +20,15 @@ class CustomCheckbox extends StatelessWidget {
         width: 24,
         height: 24,
         decoration: BoxDecoration(
-          color: value ? const Color(0xFFE5397F) : Colors.transparent,
+          color: value ? colors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: value ? const Color(0xFFE5397F) : Colors.grey,
+            color: value ? colors.primary : colors.outline,
             width: 2,
           ),
         ),
         child: value
-            ? const Icon(Icons.check, color: Colors.white, size: 18)
+            ? Icon(Icons.check, color: colors.onPrimary, size: 18)
             : null,
       ),
     );

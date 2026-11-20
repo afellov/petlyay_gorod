@@ -9,13 +9,13 @@ abstract class AuthState extends Equatable {
   List<Object> get props => [];
 }
 
-// 1. Начальное состояние (когда только открыли экран)
+// 1 Начальное состояние (когда только открыли экран)
 class AuthInitial extends AuthState {}
 
-// 2. Состояние "В процессе" (показываем крутилку)
+// 2 Состояние "В процессе" (показываем крутилку)
 class AuthLoading extends AuthState {}
 
-// 3. Состояние "Успех" (мы получили юзера с сервера)
+// 3 Состояние "Успех" (мы получили юзера с сервера)
 class AuthSuccess extends AuthState {
   final UserModel user;
 
@@ -25,7 +25,7 @@ class AuthSuccess extends AuthState {
   List<Object> get props => [user];
 }
 
-// 4. Состояние "Ошибка" (надо показать всплывашку с текстом ошибки)
+// 4 Состояние "Ошибка" (надо показать всплывашку с текстом ошибки)
 class AuthFailure extends AuthState {
   final String message;
 

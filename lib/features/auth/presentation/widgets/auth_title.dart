@@ -16,20 +16,24 @@ class AuthTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Определяем цвета на основе флага
-    final pinkColor = isAllBlack ? Colors.black : const Color(0xFFE5397F);
-    final blackColor = Colors.black;
+    final colors = Theme.of(context).colorScheme;
+    final pinkColor = isAllBlack ? colors.onSurface : colors.primary;
+    final blackColor = colors.onSurface;
 
     return Text.rich(
       textAlign: TextAlign.center,
       TextSpan(
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w900),
+        style: TextStyle(
+          fontFamily: 'UNCAGE',
+          fontSize: fontSize,
+          fontWeight: FontWeight.w700,
+        ),
         children: [
           TextSpan(
             text: "${pinkText.toUpperCase()} ",
             style: TextStyle(color: pinkColor), // Цвет меняется сам
           ),
-          
+
           TextSpan(
             text: blackText.toUpperCase(),
             style: TextStyle(color: blackColor),
