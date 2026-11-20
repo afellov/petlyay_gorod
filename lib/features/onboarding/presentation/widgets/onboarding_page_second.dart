@@ -63,7 +63,7 @@ class OnboardingPageSecond extends StatelessWidget {
                 OnboardingCard(
                   iconPath: "assets/images/onboarding/mapPinArea.png",
                   title: "Исследуй город",
-                  desc: "Открывай новые места Новокузнецка",
+                  desc: "Обменивай баллы на скидки, мерч и крутые призы",
                 ),
 
                 SizedBox(height: 23),

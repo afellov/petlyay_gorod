@@ -8,8 +8,8 @@ class SocialButtonsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Список путей к иконкам (пока везде ВК)
-    final List<String> icons = [
+    final borderColor = Theme.of(context).colorScheme.outline;
+    const icons = <String>[
       'assets/images/auth/vk_icon.png',
       'assets/images/auth/vk_icon.png',
       'assets/images/auth/vk_icon.png',
@@ -24,14 +24,7 @@ class SocialButtonsRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(
             horizontal: 8.0,
           ), // Отступы МЕЖДУ кнопками
-          child: SocialButton(
-            iconPath: icons[index],
-            // Пример: делаем последнюю кнопку с синей рамкой, как на скрине
-            borderColor: index == 3 ? Colors.blue : Colors.grey.shade400,
-            onTap: () {
-              print("Нажата соцсеть №$index");
-            },
-          ),
+          child: SocialButton(iconPath: icons[index], borderColor: borderColor),
         );
       }),
     );

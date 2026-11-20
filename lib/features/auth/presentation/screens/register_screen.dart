@@ -39,10 +39,67 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  void _submitRegistration(BuildContext context) {
+    if (!_isChecked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Сначала примите условия соглашения.')),
+      );
+      return;
+    }
+
+    final name = _nameController.text.trim();
+    final identity = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _passwordConfirmController.text;
+    if (name.isEmpty ||
+        identity.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Заполните все поля.')));
+      return;
+    }
+
+    final isEmail = identity.contains('@');
+    final isValidEmail = RegExp(
+      r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+    ).hasMatch(identity);
+    final phoneDigits = identity.replaceAll(RegExp(r'\D'), '');
+    final isValidPhone = phoneDigits.length >= 10 && phoneDigits.length <= 15;
+    if ((isEmail && !isValidEmail) || (!isEmail && !isValidPhone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Введите корректный email или номер телефона.'),
+        ),
+      );
+      return;
+    }
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Пароли не совпадают.')));
+      return;
+    }
+    if (password.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Пароль должен содержать не менее 8 символов.'),
+        ),
+      );
+      return;
+    }
+
+    context.read<AuthBloc>().add(
+      RegisterEvent(name: name, email: identity, password: password),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.surface,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           // Слушаем: Если Блок крикнул "УСПЕХ"
@@ -59,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: Colors.red,
+                backgroundColor: colors.error,
               ),
             );
           }
@@ -139,13 +196,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onChanged: (newValue) =>
                               setState(() => _isChecked = newValue),
                         ),
-                        
+
                         const SizedBox(width: 12),
 
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             "Я принимаю условия пользовательского соглашения",
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                            style: TextStyle(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
@@ -153,75 +213,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 32),
 
-                    AppButton(
-                      height: 60,
-                      text: "ЗАРЕГИСТРИРОВАТЬСЯ",
-                      onTap: () {
-                        // чекаем галочку
-                        if (!_isChecked) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Сначала примите условия соглашения!",
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) => state is AuthLoading
+                          ? SizedBox(
+                              height: 60,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: colors.primary,
+                                ),
                               ),
+                            )
+                          : AppButton(
+                              height: 60,
+                              text: 'ЗАРЕГИСТРИРОВАТЬСЯ',
+                              onTap: () => _submitRegistration(context),
                             ),
-                          );
-                          return;
-                        }
-
-                        // * Достаем текст из контроллеров в переменные, чтобы было удобно читать
-                        final name = _nameController.text
-                            .trim(); // удаляет лишние пробелы в начале и конце
-                        final email = _emailController.text.trim();
-                        final password = _passwordController.text.trim();
-                        final confirmPassword = _passwordConfirmController.text
-                            .trim();
-
-                        // 2 Проверяем на пустоту
-                        if (name.isEmpty ||
-                            email.isEmpty ||
-                            password.isEmpty ||
-                            confirmPassword.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Пожалуйста, заполните все поля!"),
-                            ),
-                          );
-                          return;
-                        }
-
-                        // 3 Проверяем совпадение паролей
-                        if (password != confirmPassword) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Пароли не совпадают!"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        // 4 Проверка на длину пароля (PocketBase требует минимум 8 символов)
-                        if (password.length < 8) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Пароль должен быть не менее 8 символов!",
-                              ),
-                            ),
-                          );
-                          return;
-                        }
-
-                        // ПРОШЛИ ВСЕ ПРОВЕРКИ - КИДАЕМ КОНВЕРТ В BLOC!
-                        context.read<AuthBloc>().add(
-                          RegisterEvent(
-                            name: name,
-                            email: email,
-                            password: password,
-                          ),
-                        );
-                      },
                     ),
 
                     const SizedBox(height: 32),
@@ -238,9 +244,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Text.rich(
                       textAlign: TextAlign.center,
                       TextSpan(
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: colors.onSurfaceVariant,
                         ),
                         children: [
                           const TextSpan(text: "Уже есть аккаунт? "),
@@ -248,14 +254,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           // Кликабельная часть 1
                           TextSpan(
                             text: "Войти",
-                            style: const TextStyle(
-                              color: Colors.pink,
+                            style: TextStyle(
+                              color: colors.primary,
                               fontWeight: FontWeight.bold,
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                print("Нажали на соглашение");
-                                // Тут будет переход: Navigator.push(...)
+                                Navigator.of(context).pop();
                               },
                           ),
                         ],

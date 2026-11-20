@@ -1,4 +1,7 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -10,101 +13,178 @@ class CustomBottomNavBar extends StatelessWidget {
     required this.onTap,
   });
 
+  static const _items = <_NavItemData>[
+    _NavItemData('Главная', 'assets/vectors/nav_home.svg'),
+    _NavItemData('Задания', 'assets/vectors/nav_tasks.svg'),
+    _NavItemData('Карта', 'assets/vectors/nav_map.svg'),
+    _NavItemData('Магазин', 'assets/vectors/nav_shop.svg', disabled: true),
+    _NavItemData('Профиль', 'assets/vectors/nav_profile.svg'),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    // Оборачиваем в SafeArea и Padding, чтобы навбар парил над низом экрана!
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final islandFill = isDark
+        ? const Color(0xFF201A1E).withValues(alpha: .82)
+        : Colors.white.withValues(alpha: .8);
+    final textColor = isDark ? const Color(0xFFF5EDF1) : Colors.black;
+
     return SafeArea(
+      top: false,
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-        child: Container(
-          height: 70, // Сделали аккуратную компактную высоту
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(40), // Овальная пилюля
-            border: Border.all(
-              color: Colors.grey.shade200,
-              width: 1.5,
-            ), // Серая рамочка
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 4), // Мягкая тень вниз
-              ),
-            ],
+        // Figma component: 440×122; the 408×64 island sits 16 px in from
+        // each side with 5 px above it and 53 px below it (including safe area).
+        padding: const EdgeInsets.fromLTRB(16, 5, 16, 19),
+        child: SizedBox(
+          height: 64,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final slotWidth = (constraints.maxWidth - 12) / _items.length;
+              final activeLeft =
+                  6 + slotWidth * currentIndex + (slotWidth - 84) / 2;
+
+              return DecoratedBox(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x40000000),
+                      offset: Offset(0, 1),
+                      blurRadius: 9.4,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 4.8, sigmaY: 4.8),
+                    child: ColoredBox(
+                      color: islandFill,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (currentIndex >= 0 && currentIndex < _items.length)
+                            Positioned(
+                              left: activeLeft,
+                              top: 3,
+                              width: 84,
+                              height: 58,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: AppColors.active.withValues(alpha: .2),
+                                  borderRadius: BorderRadius.circular(35),
+                                ),
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Row(
+                              children: [
+                                for (
+                                  var index = 0;
+                                  index < _items.length;
+                                  index++
+                                )
+                                  Expanded(
+                                    child: _NavItem(
+                                      data: _items[index],
+                                      selected: currentIndex == index,
+                                      textColor: textColor,
+                                      onTap: () => onTap(index),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final _NavItemData data;
+  final bool selected;
+  final Color textColor;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.data,
+    required this.selected,
+    required this.textColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = data.disabled
+        ? const Color(0xFFB3B3B3)
+        : selected
+        ? AppColors.active
+        : textColor.withValues(alpha: .7);
+
+    return Semantics(
+      button: !data.disabled,
+      enabled: !data.disabled,
+      selected: selected,
+      label: data.label,
+      child: GestureDetector(
+        onTap: data.disabled ? null : onTap,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox.expand(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildItem(0, Icons.home_outlined, Icons.home_filled, "Главная"),
-              _buildItem(
-                1,
-                Icons.menu_book_outlined,
-                Icons.menu_book,
-                "Задания",
-              ), // Иконка книжки как на макете
-              _buildItem(2, Icons.map_outlined, Icons.map, "Карта"),
-              _buildItem(
-                3,
-                Icons.shopping_bag_outlined,
-                Icons.shopping_bag,
-                "Магазин",
+              SizedBox(
+                width: 26,
+                height: 26,
+                child: Center(
+                  child: SvgPicture.asset(
+                    data.asset,
+                    colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                  ),
+                ),
               ),
-              _buildItem(4, Icons.person_outline, Icons.person, "Профиль"),
+              Transform.translate(
+                offset: const Offset(0, -2),
+                child: Text(
+                  data.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    fontFamily: 'Arial',
+                    fontSize: 10,
+                    height: 2.2,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-Widget _buildItem(int index, IconData outlineIcon, IconData filledIcon, String label) {
-    final bool isActive = currentIndex == index;
-    const Color activePink = Color(0xFFFCE4EC); // Наш нежно-розовый
+}
 
-    return GestureDetector(
-      onTap: () => onTap(index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: isActive 
-            ? const Duration(milliseconds: 350) 
-            : Duration.zero,
-        
-        // 1. Упругая кривая - дает эффект надувания пузыря:
-        curve: Curves.easeOutBack, 
+class _NavItemData {
+  final String label;
+  final String asset;
+  final bool disabled;
 
-        // 2. Раздуваем размеры: неактивная маленькая, активная вырастает во все стороны
-        padding: EdgeInsets.symmetric(
-          horizontal: isActive ? 16 : 4,
-          vertical: isActive ? 6 : 2,
-        ),
-        
-        decoration: BoxDecoration(
-          // 3. СЕКРЕТ: анимируем из прозрачного РОЗОВОГО, а не из черного!
-          color: isActive 
-              ? activePink 
-              : activePink.withValues(alpha: 0.0),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              isActive ? filledIcon : outlineIcon,
-              color: isActive ? const Color(0xFFE5397F) : Colors.black87,
-              size: 24,
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
-                color: isActive ? const Color(0xFFE5397F) : Colors.black87,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }}
+  const _NavItemData(this.label, this.asset, {this.disabled = false});
+}
+
+abstract final class AppColors {
+  static const active = Color(0xFFDC3978);
+}

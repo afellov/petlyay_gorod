@@ -25,6 +25,7 @@ class OnboardingButton extends StatelessWidget {
               child: Center(
                 child: Text(
                   style: TextStyle(
+                    fontFamily: 'Russo One',
                     fontSize: 26,
                     color: const Color.fromRGBO(255, 255, 255, 1),
                     letterSpacing: 1,

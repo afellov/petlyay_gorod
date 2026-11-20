@@ -9,10 +9,10 @@ import 'package:walk_city/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:walk_city/features/auth/presentation/bloc/auth_event.dart';
 import 'package:walk_city/features/auth/presentation/bloc/auth_state.dart';
 import 'package:walk_city/features/auth/presentation/screens/register_screen.dart';
+import 'package:walk_city/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:walk_city/features/auth/presentation/widgets/auth_title.dart';
 import 'package:walk_city/features/auth/presentation/widgets/buttons/social_buttons_row.dart';
 import 'package:walk_city/features/auth/presentation/widgets/or_divider.dart';
-import 'package:walk_city/features/home/presentation/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -36,8 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.surface,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           // если все в порядке - перекидываем в само приложение
@@ -55,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: Colors.red,
+                backgroundColor: colors.error,
               ),
             );
           }
@@ -73,8 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           const SizedBox(height: 60),
-                          // ЛОГО
 
+                          // ЛОГО
                           AuthTitle(pinkText: "гуляй", blackText: "Город"),
 
                           const SizedBox(height: 47),
@@ -88,9 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
 
-                          const Text(
+                          Text(
                             "Войдите в свой аккаунт",
-                            style: TextStyle(color: Colors.black87),
+                            style: TextStyle(color: colors.onSurface),
                           ),
 
                           const SizedBox(height: 40),
@@ -115,7 +116,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const ForgotPasswordScreen(),
+                                ),
+                              ),
                               style: TextButton.styleFrom(
                                 // Убираем минимальный размер (те самые 48px)
                                 minimumSize: Size.zero,
@@ -126,9 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // Ужимаем зону нажатия
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Text(
+                              child: Text(
                                 "Забыли пароль?",
-                                style: TextStyle(color: Colors.pink),
+                                style: TextStyle(color: colors.primary),
                               ),
                             ),
                           ),
@@ -141,11 +146,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               // ! позже переделать (возможно)
                               if (state is AuthLoading) {
                                 // Показываем крутилку
-                                return const SizedBox(
+                                return SizedBox(
                                   height: 60,
                                   child: Center(
                                     child: CircularProgressIndicator(
-                                      color: Colors.pink,
+                                      color: colors.primary,
                                     ),
                                   ),
                                 );
@@ -157,11 +162,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 text: "ВОЙТИ",
                                 onTap: () {
                                   final email = _emailController.text.trim();
-                                  final password = _passwordController.text
-                                      .trim();
+                                  final password = _passwordController.text;
 
                                   // Проверяем на пустоту поля
-                                  if (email.isEmpty || password.isEmpty) {
+                                  if (email.isEmpty ||
+                                      password.trim().isEmpty) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
@@ -203,17 +208,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: 18),
 
                           Text.rich(
+                            key: const ValueKey('login-sign-up'),
                             TextSpan(
                               style: const TextStyle(fontSize: 16),
                               children: [
-                                const TextSpan(
+                                TextSpan(
                                   text: "Нет аккаунта? ",
-                                  style: TextStyle(color: Colors.black),
+                                  style: TextStyle(color: colors.onSurface),
                                 ),
                                 TextSpan(
                                   text: "Зарегистрироваться",
-                                  style: const TextStyle(
-                                    color: Colors.pink,
+                                  style: TextStyle(
+                                    color: colors.primary,
                                     fontWeight: FontWeight.bold,
                                   ),
 
@@ -243,9 +249,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           Text.rich(
                             textAlign: TextAlign.center,
                             TextSpan(
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey,
+                                color: colors.onSurfaceVariant,
                               ),
                               children: [
                                 const TextSpan(
@@ -255,12 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 TextSpan(
                                   text:
                                       "Пользовательским соглашением Политикой конфиденциальности",
-                                  style: const TextStyle(color: Colors.pink),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      print("Нажали на соглашение");
-                                      // Тут будет переход: Navigator.push(...)
-                                    },
+                                  style: TextStyle(color: colors.primary),
                                 ),
                               ],
                             ),

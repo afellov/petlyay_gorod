@@ -7,46 +7,64 @@ import 'package:walk_city/features/auth/data/models/user_model.dart';
 class AuthRepository {
   final _pb = PbClient.instance;
 
-  // после регистрации сразу логинимся и возвращаем модель юзера
+  // PocketBase supports either email or the unique phone identity field.
   Future<UserModel> register({
     required String email,
     required String password,
     required String name,
   }) async {
-    final body = {
-      "email": email,
-      "password": password,
-      "passwordConfirm": password,
-      "name": name,
+    final identity = normalizeIdentity(email);
+    final isEmail = identity.contains('@');
+    final body = <String, dynamic>{
+      if (isEmail) 'email': identity else 'phone': identity,
+      'password': password,
+      'passwordConfirm': password,
+      'name': name.trim(),
     };
 
-    // 1 Создаем юзера в базе
     await _pb.collection('users').create(body: body);
-    
-    // 2 сразу логинимся (Чтобы получить токен и сохранить сессию)
-    return await login(email: email, password: password);
+    return login(email: identity, password: password);
   }
 
-  // загружаем аватарку на сервер (в коллекцию users)
+  static String normalizeIdentity(String value) {
+    final identity = value.trim();
+    if (identity.contains('@')) return identity;
+    return identity.replaceAll(RegExp(r'[\s()\-]'), '');
+  }
+
   Future<void> uploadAvatar(File imageFile) async {
-    // Достаем ID текущего залогиненного пользователя из authStore
-    final userId = _pb.authStore.record!.id;
-
-    // Отправляем файл на сервер
-    await _pb.collection('users').update(
-      userId,
-      files: [
-        await http.MultipartFile.fromPath('avatar', imageFile.path),
-      ],
-    );
+    final user = _pb.authStore.record;
+    if (user == null) throw StateError('Пользователь не авторизован.');
+    final updated = await _pb
+        .collection('users')
+        .update(
+          user.id,
+          files: [await http.MultipartFile.fromPath('avatar', imageFile.path)],
+        );
+    _pb.authStore.save(_pb.authStore.token, updated);
   }
 
-
-  // Метод логина
-  Future<UserModel> login({required String email, required String password}) async {
-    final authData = await _pb.collection('users').authWithPassword(email, password);
-    
-    return UserModel.fromJson(authData.record.data);
+  Future<UserModel> login({
+    required String email,
+    required String password,
+  }) async {
+    final authData = await _pb
+        .collection('users')
+        .authWithPassword(normalizeIdentity(email), password);
+    return UserModel.fromJson(authData.record.toJson());
   }
-  
+
+  Future<UserModel> updateProfile({required String name}) async {
+    final user = _pb.authStore.record;
+    if (user == null) throw StateError('Пользователь не авторизован.');
+    final updated = await _pb
+        .collection('users')
+        .update(user.id, body: {'name': name.trim()});
+    _pb.authStore.save(_pb.authStore.token, updated);
+    return UserModel.fromJson(updated.toJson());
+  }
+
+  Future<void> requestPasswordReset(String email) async {
+    await _pb.collection('users').requestPasswordReset(email.trim());
+  }
 }

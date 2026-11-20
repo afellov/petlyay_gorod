@@ -2,31 +2,41 @@ import 'package:flutter/material.dart';
 
 class ProfileStatsCard extends StatelessWidget {
   final int tasksCompleted;
-  final int kmPassed;
+  final double kmPassed;
 
   const ProfileStatsCard({
     super.key,
-    this.tasksCompleted = 140,
-    this.kmPassed = 350,
+    this.tasksCompleted = 0,
+    this.kmPassed = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               children: [
-                const Text("Выполнено заданий", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Выполнено заданий",
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
-                Text("$tasksCompleted", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                Text(
+                  "$tasksCompleted",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ],
             ),
           ),
@@ -34,9 +44,18 @@ class ProfileStatsCard extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                const Text("Пройдено километров", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Пройдено километров",
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
-                Text("$kmPassed", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                Text(
+                  kmPassed.toStringAsFixed(kmPassed % 1 == 0 ? 0 : 1),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ],
             ),
           ),

@@ -14,6 +14,7 @@ class ProfileAvatarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Column(
       children: [
         Container(
@@ -21,8 +22,8 @@ class ProfileAvatarHeader extends StatelessWidget {
           height: 130,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.black, width: 2),
-            color: Colors.grey.shade300,
+            border: Border.all(color: colors.outline, width: 2),
+            color: colors.surfaceContainerHighest,
             image: avatarUrl != null
                 ? DecorationImage(
                     image: NetworkImage(avatarUrl!),
@@ -31,14 +32,14 @@ class ProfileAvatarHeader extends StatelessWidget {
                 : null,
           ),
           child: avatarUrl == null
-              ? const Icon(Icons.person, size: 70, color: Colors.white)
+              ? Icon(Icons.person, size: 70, color: colors.onSurfaceVariant)
               : null,
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.pink.shade50,
+            color: colors.primaryContainer,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -53,10 +54,10 @@ class ProfileAvatarHeader extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           name.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.w900,
-            color: Color(0xFFE5397F),
+            color: colors.primary,
             letterSpacing: 1,
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:walk_city/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:walk_city/features/home/presentation/screens/home_screen.dart';
+import 'package:walk_city/features/map/presentation/screens/map_screen.dart';
 import 'package:walk_city/features/profile/presentation/screens/profile_screen.dart';
 import 'package:walk_city/features/tasks/presentation/screens/tasks_screen.dart';
 
@@ -14,42 +15,35 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  // Список страниц. 
+  // Список страниц.
   // При переключении индексов в навбаре будет показываться нужная страница
   final List<Widget> _screens = const [
     HomeScreen(),
     TasksScreen(),
-    Scaffold(
-      body: Center(
-        child: Text("Карта (В разработке)", style: TextStyle(fontSize: 20)),
-      ),
-    ),
-    Scaffold(
-      body: Center(
-        child: Text("Магазин (В разработке)", style: TextStyle(fontSize: 20)),
-      ),
-    ),
+    MapScreen(),
+    SizedBox.shrink(),
     ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-
-      // Разрешает экрану залезть ПОД нижнюю панель
-      extendBody: true,
-
-      body: _screens[_currentIndex],
-
-      // навигационная панель
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _currentIndex != 0) {
+          setState(() => _currentIndex = 0);
+        }
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: IndexedStack(index: _currentIndex, children: _screens),
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            if (index == 3) return;
+            setState(() => _currentIndex = index);
+          },
+        ),
       ),
     );
   }
