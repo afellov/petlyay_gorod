@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:walk_city/features/auth/presentation/palette.dart';
+import 'package:walk_city/core/theme/palette.dart';
 
 /// Поле для ввода данных в окне изменения пароля.
 /// Имеет свое название, подсказку и иконку в виде виджета внутри текстового поля.

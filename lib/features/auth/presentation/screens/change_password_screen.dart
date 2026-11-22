@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:walk_city/features/auth/presentation/palette.dart';
+import 'package:walk_city/core/theme/palette.dart';
+import 'package:walk_city/core/widgets/header.dart';
 import 'package:walk_city/features/auth/presentation/widgets/alert_dialog.dart';
 import 'package:walk_city/features/auth/presentation/widgets/labeled_text_field.dart';
 import 'package:walk_city/features/auth/presentation/widgets/buttons/save_button.dart';
@@ -107,7 +108,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           SafeArea(
             child: Column(
               children: [
-                _Header(palette: palette),
+                Header(palette: palette, text: 'ИЗМЕНИТЬ ПАРОЛЬ'),
                 _BackAndBanner(palette: palette),
 
                 // Expanded + SingleChildScrollView: контент занимает всё место
@@ -244,66 +245,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// "Шапка" окна изменения пароля. 
-/// Содержит в себе иконку колокола, луны и заголовок "Изменить пароль"
-class _Header extends StatelessWidget {
-  const _Header({required this.palette});
-
-  final Palette palette;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-      child: Row(
-        children: [
-          // Луна с розовым крестиком (декор из макета).
-          SizedBox(
-            width: 28,
-            height: 28,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(Icons.nightlight_round, size: 22, color: palette.ink),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Text(
-                    '×',
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1,
-                      fontWeight: FontWeight.w700,
-                      color: palette.pink,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Expanded с центровкой — заголовок ровно по центру экрана,
-          // независимо от ширины иконок по краям.
-          Expanded(
-            child: Text(
-              'ИЗМЕНИТЬ ПАРОЛЬ',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.0,
-                color: palette.ink,
-              ),
-            ),
-          ),
-
-          Icon(Icons.notifications_none_rounded, size: 22, color: palette.ink),
         ],
       ),
     );

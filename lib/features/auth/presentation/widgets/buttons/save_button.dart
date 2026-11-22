@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:walk_city/features/auth/presentation/palette.dart';
+import 'package:walk_city/core/theme/palette.dart';
 
 class SaveButton extends StatelessWidget {
   const SaveButton({super.key, required this.palette, required this.onTap});

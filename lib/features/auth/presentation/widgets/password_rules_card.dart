@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:walk_city/features/auth/presentation/palette.dart';
+import 'package:walk_city/core/theme/palette.dart';
 
 class PasswordRulesCard extends StatelessWidget {
   const PasswordRulesCard({super.key, required this.palette});
