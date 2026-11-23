@@ -76,6 +76,7 @@ flutter:
     - assets/images/onboarding/
     - assets/images/auth/
     - assets/images/home/
+    - assets/images/tasks/
     - assets/vectors/
 
   fonts:

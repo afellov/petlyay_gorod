@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/widgets/custom_app_bar.dart';
+import 'package:walk_city/features/tasks/presentation/widgets/mission_content.dart';
 
 const _pink = Color(0xFFDC3978);
 const _lightPink = Color(0xFFF9E2EC);
 
-class TasksScreen extends StatelessWidget {
+class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
 
   @override
+  State<TasksScreen> createState() => _TasksScreenState();
+}
+
+class _TasksScreenState extends State<TasksScreen> {
+  bool _showMissions = false;
+
+  @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Colors.white,
+    backgroundColor: Theme.of(context).colorScheme.surface,
     body: SafeArea(
       child: LayoutBuilder(
         builder: (context, viewport) {
@@ -17,7 +26,7 @@ class TasksScreen extends StatelessWidget {
           final scale = (contentWidth / 408).clamp(.68, 1.0);
           return Column(
             children: [
-              const _TasksHeader(),
+              const CustomAppBar(title: 'ЗАДАНИЯ', showNotifications: true),
               Expanded(
                 child: Stack(
                   children: [
@@ -32,23 +41,57 @@ class TasksScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(16, 30 * scale, 16, 130),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _Tabs(scale: scale),
-                          SizedBox(height: 23 * scale),
-                          _RandomMarkersBanner(scale: scale),
-                          SizedBox(height: 24 * scale),
-                          _SearchFilters(scale: scale),
-                          SizedBox(height: 12 * scale),
-                          for (var i = 0; i < _figmaRoutes.length; i++) ...[
-                            _RouteCard(route: _figmaRoutes[i], scale: scale),
-                            SizedBox(height: 12 * scale),
-                          ],
-                        ],
-                      ),
+                    Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            16,
+                            20 * scale,
+                            16,
+                            23 * scale,
+                          ),
+                          child: _Tabs(
+                            scale: scale,
+                            showMissions: _showMissions,
+                            onSelect: (value) =>
+                                setState(() => _showMissions = value),
+                          ),
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (_showMissions)
+                                  MissionBanner(scale: scale)
+                                else
+                                  _RandomMarkersBanner(scale: scale),
+                                SizedBox(height: 24 * scale),
+                                _SearchFilters(
+                                  scale: scale,
+                                  missions: _showMissions,
+                                ),
+                                SizedBox(height: 12 * scale),
+                                if (_showMissions)
+                                  MissionList(scale: scale)
+                                else
+                                  for (
+                                    var i = 0;
+                                    i < _figmaRoutes.length;
+                                    i++
+                                  ) ...[
+                                    _RouteCard(
+                                      route: _figmaRoutes[i],
+                                      scale: scale,
+                                    ),
+                                    SizedBox(height: 12 * scale),
+                                  ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -61,89 +104,65 @@ class TasksScreen extends StatelessWidget {
   );
 }
 
-class _TasksHeader extends StatelessWidget {
-  const _TasksHeader();
-  @override
-  Widget build(BuildContext context) => Container(
-    color: Colors.white,
-    height: 48,
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Row(
-      children: [
-        const SizedBox(
-          width: 32,
-          child: Icon(Icons.dark_mode_outlined, color: Colors.black, size: 28),
-        ),
-        const Expanded(
-          child: Center(
-            child: Text(
-              'ЗАДАНИЯ',
-              style: TextStyle(
-                fontFamily: 'UNCAGE',
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-                fontSize: 22,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          width: 32,
-          child: Icon(
-            Icons.notifications_none_outlined,
-            color: Colors.black,
-            size: 29,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class _Tabs extends StatelessWidget {
-  const _Tabs({required this.scale});
+  const _Tabs({
+    required this.scale,
+    required this.showMissions,
+    required this.onSelect,
+  });
   final double scale;
+  final bool showMissions;
+  final ValueChanged<bool> onSelect;
   @override
   Widget build(BuildContext context) => Row(
     children: [
       Expanded(
-        child: Container(
-          height: 40 * scale,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: _lightPink,
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Text(
-            'Маршруты',
-            style: TextStyle(
-              fontFamily: 'Arial',
-              fontWeight: FontWeight.w700,
-              fontSize: 17 * scale,
-              color: _pink,
+        child: GestureDetector(
+          onTap: () => onSelect(false),
+          child: Container(
+            height: 40 * scale,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: showMissions ? Colors.white : _lightPink,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: showMissions
+                  ? const [BoxShadow(color: Color(0x24000000), blurRadius: 5)]
+                  : null,
+            ),
+            child: Text(
+              'Маршруты',
+              style: TextStyle(
+                fontFamily: 'Arial',
+                fontWeight: FontWeight.w700,
+                fontSize: 17 * scale,
+                color: showMissions ? Colors.black : _pink,
+              ),
             ),
           ),
         ),
       ),
       SizedBox(width: 12 * scale),
       Expanded(
-        child: Container(
-          height: 40 * scale,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: const [
-              BoxShadow(color: Color(0x24000000), blurRadius: 5),
-            ],
-          ),
-          child: Text(
-            'Миссии',
-            style: TextStyle(
-              fontFamily: 'Arial',
-              fontWeight: FontWeight.w700,
-              fontSize: 17 * scale,
-              color: Colors.black,
+        child: GestureDetector(
+          onTap: () => onSelect(true),
+          child: Container(
+            height: 40 * scale,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: showMissions ? _lightPink : Colors.white,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: showMissions
+                  ? null
+                  : const [BoxShadow(color: Color(0x24000000), blurRadius: 5)],
+            ),
+            child: Text(
+              'Миссии',
+              style: TextStyle(
+                fontFamily: 'Arial',
+                fontWeight: FontWeight.w700,
+                fontSize: 17 * scale,
+                color: showMissions ? _pink : Colors.black,
+              ),
             ),
           ),
         ),
@@ -350,8 +369,9 @@ class _MapArtworkPainter extends CustomPainter {
 }
 
 class _SearchFilters extends StatelessWidget {
-  const _SearchFilters({required this.scale});
+  const _SearchFilters({required this.scale, required this.missions});
   final double scale;
+  final bool missions;
   @override
   Widget build(BuildContext context) => Row(
     children: [
@@ -364,18 +384,25 @@ class _SearchFilters extends StatelessWidget {
       _FilterBox(
         width: 50 * scale,
         height: 40 * scale,
-        child: Icon(Icons.filter_list, size: 23 * scale),
+        highlighted: missions,
+        child: Icon(
+          Icons.filter_list,
+          size: 23 * scale,
+          color: missions ? _pink : Colors.black,
+        ),
       ),
       SizedBox(width: 12 * scale),
       _FilterBox(
         width: 88 * scale,
         height: 32 * scale,
+        highlighted: missions,
         child: Text(
           'Рядом',
           style: TextStyle(
             fontFamily: 'Arial',
             fontSize: 14 * scale,
             fontWeight: FontWeight.w700,
+            color: missions ? _pink : Colors.black,
           ),
         ),
       ),
@@ -401,16 +428,18 @@ class _FilterBox extends StatelessWidget {
     required this.width,
     required this.height,
     required this.child,
+    this.highlighted = false,
   });
   final double width, height;
   final Widget child;
+  final bool highlighted;
   @override
   Widget build(BuildContext context) => Container(
     width: width,
     height: height,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: highlighted ? const Color(0xFFFCEAF1) : Colors.white,
       borderRadius: BorderRadius.circular(12),
       boxShadow: const [BoxShadow(color: Color(0x23000000), blurRadius: 4)],
     ),

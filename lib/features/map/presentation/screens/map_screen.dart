@@ -12,10 +12,7 @@ class MapScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-              child: CustomAppBar(title: 'КАРТА'),
-            ),
+            const CustomAppBar(title: 'КАРТА'),
             Expanded(
               child: FlutterMap(
                 options: const MapOptions(
