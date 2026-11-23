@@ -5,7 +5,7 @@ class CustomTextField extends StatelessWidget {
   final IconData icon;
   final bool isPassword;
   final IconData? suffixIcon;
-  
+
   final TextEditingController? controller; // берет данные из input
 
   const CustomTextField({
@@ -19,13 +19,11 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     // ЕДИНЫЙ СТИЛЬ РАМКИ: Черный цвет, скругление 15
     final outlineBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(15),
-      borderSide: const BorderSide(
-        color: Colors.grey,
-        width: 1.0,
-      ), // Черный цвет!
+      borderSide: BorderSide(color: colors.outline, width: 1.0), // Черный цвет!
     );
 
     return TextFormField(
@@ -33,16 +31,16 @@ class CustomTextField extends StatelessWidget {
       obscureText: isPassword,
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: colors.surface,
         hintText: hint,
         // Добавляем вот эту строчку:
-        hintStyle: const TextStyle(color: Colors.grey),
+        hintStyle: TextStyle(color: colors.onSurfaceVariant),
 
-        prefixIcon: Icon(icon, color: Colors.grey),
+        prefixIcon: Icon(icon, color: colors.onSurfaceVariant),
         contentPadding: const EdgeInsets.symmetric(vertical: 18),
 
         suffixIcon: suffixIcon != null
-            ? Icon(suffixIcon, color: Colors.grey)
+            ? Icon(suffixIcon, color: colors.onSurfaceVariant)
             : null,
 
         // Применяем нашу рамку ко всем состояниям!

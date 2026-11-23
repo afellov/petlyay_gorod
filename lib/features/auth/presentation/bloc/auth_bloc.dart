@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pocketbase/pocketbase.dart';
 import 'package:walk_city/features/auth/data/repositories/auth_repository.dart';
+import 'package:walk_city/core/network/pb_client.dart';
 
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -26,23 +28,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       emit(AuthSuccess(user: user)); // Кричим "УСПЕХ"
-    } catch (e) {
-      String errorMessage = "Произошла ошибка при входе.";
-
-      final errorString = e.toString();
-
-      // Сервер возвращает 400 Failed to authenticate
-      if (errorString.contains("Failed to authenticate")) {
-        errorMessage = "Неверный email или пароль.";
-      }
-      // Если сервер выключен или нет интернета
-      else if (errorString.contains("ClientException") &&
-          !errorString.contains("response:")) {
-        errorMessage = "Нет связи с сервером. Проверьте интернет.";
-      }
-
-      // Выдаем красивую ошибку
-      emit(AuthFailure(message: errorMessage));
+    } catch (error) {
+      emit(AuthFailure(message: _authError(error, isLogin: true)));
     }
   }
 
@@ -59,26 +46,51 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       emit(AuthSuccess(user: user));
-    } catch (e) {
-      // переводим ошибку на человеческий язык
-      String errorMessage = "Произошла ошибка при регистрации.";
-
-      final errorString = e.toString();
-
-      // Если сервер ругается на email
-      if (errorString.contains("validation_is_email")) {
-        errorMessage = "Введите правильный формат email!";
-      }
-      // Если email уже есть в базе
-      else if (errorString.contains("validation_not_unique")) {
-        errorMessage = "Пользователь с таким email уже существует!";
-      }
-      // ? Если пароль слишком короткий (хотя мы это уже проверяем в UI)
-      else if (errorString.contains("validation_length")) {
-        errorMessage = "Пароль слишком короткий!";
-      }
-
-      emit(AuthFailure(message: errorMessage));
+    } catch (error) {
+      emit(AuthFailure(message: _authError(error, isLogin: false)));
     }
+  }
+
+  String _authError(Object error, {required bool isLogin}) {
+    if (error is ClientException) {
+      if (error.statusCode == 0) {
+        return 'Не удалось подключиться к PocketBase (${PbClient.baseUrl}). Проверьте, что сервер запущен и доступен симулятору.';
+      }
+
+      final message = error.response['message']?.toString() ?? '';
+      final data = error.response['data'];
+      final validationText = data is Map
+          ? data.values
+                .whereType<Map>()
+                .map((field) => field['code']?.toString() ?? '')
+                .join(' ')
+          : '';
+      final details = '$message $validationText'.toLowerCase();
+
+      if (details.contains('failed to authenticate') ||
+          (isLogin && error.statusCode == 400)) {
+        return 'Неверный email, телефон или пароль.';
+      }
+      if (details.contains('validation_not_unique')) {
+        return 'Аккаунт с таким email или телефоном уже существует.';
+      }
+      if (details.contains('validation_is_email')) {
+        return 'Введите корректный email или номер телефона.';
+      }
+      if (details.contains('validation_length') ||
+          details.contains('validation_min')) {
+        return 'Пароль должен содержать не менее 8 символов.';
+      }
+      if (error.statusCode >= 500) {
+        return 'PocketBase временно недоступен. Попробуйте ещё раз.';
+      }
+      if (message.isNotEmpty) return 'Ошибка PocketBase: $message';
+      return isLogin
+          ? 'Не удалось выполнить вход. Проверьте данные и подключение.'
+          : 'Не удалось создать аккаунт. Проверьте данные и правила PocketBase.';
+    }
+    return isLogin
+        ? 'Не удалось выполнить вход: $error'
+        : 'Не удалось создать аккаунт: $error';
   }
 }

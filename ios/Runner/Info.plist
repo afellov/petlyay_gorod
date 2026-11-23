@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Walk City</string>
+	<string>Гуляй Город</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -71,6 +71,8 @@
     <string>Нам нужен доступ к галерее, чтобы вы могли выбрать аватарку для профиля.</string>
     <key>NSCameraUsageDescription</key>
     <string>Нам нужен доступ к камере, чтобы вы могли сделать фото для профиля.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Геолокация нужна для подтверждения посещения контрольных точек выбранного маршрута.</string>
 
 </dict>
 </plist>

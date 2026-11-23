@@ -1,28 +1,36 @@
 import 'package:pocketbase/pocketbase.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PbClient {
-  // late - "Я клянусь, что инициализирую эту переменную позже, до того как её используют"
   static late final PocketBase instance;
+  static const baseUrl = String.fromEnvironment(
+    'POCKETBASE_URL',
+    defaultValue: 'http://127.0.0.1:8090',
+  );
+  static const _authKey = 'pb_auth';
+  static final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
-  // Метод инициализации (вызывается один раз при старте приложения)
   static Future<void> init() async {
-
-    // 1 Подключение к жесткому диску телефона
-    final prefs = await SharedPreferences.getInstance();
-
-    // 2 создание "умного" хранилища для PocketBase
+    final preferences = await SharedPreferences.getInstance();
+    var initialAuth = await _secureStorage.read(key: _authKey);
+    if (initialAuth == null) {
+      initialAuth = preferences.getString(_authKey);
+      if (initialAuth != null) {
+        await _secureStorage.write(key: _authKey, value: initialAuth);
+        await preferences.remove(_authKey);
+      }
+    }
     final store = AsyncAuthStore(
-      
-      // Как сохранять: берем данные от PB и пишем на диск под ключом 'pb_auth'
-      save: (String data) async => prefs.setString('pb_auth', data),
-
-      // Как читать: при старте достаем данные с диска по ключу 'pb_auth'
-      initial: prefs.getString('pb_auth'),
+      save: (String data) => _secureStorage.write(key: _authKey, value: data),
+      initial: initialAuth,
+      clear: () => _secureStorage.delete(key: _authKey),
     );
+    instance = PocketBase(baseUrl, authStore: store);
+  }
 
-    // 3 создание клиента и передача ему "умного" хранилища
-    instance = PocketBase('http://127.0.0.1:8090', authStore: store);
-    
+  static Future<void> clearAuthSession() async {
+    instance.authStore.clear();
+    await _secureStorage.delete(key: _authKey);
   }
 }

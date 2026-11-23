@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:walk_city/features/auth/presentation/screens/login_screen.dart';
 import 'package:walk_city/features/onboarding/presentation/widgets/onboarding_button.dart';
 import 'package:walk_city/features/onboarding/presentation/widgets/onboarding_page_first.dart';
 import 'package:walk_city/features/onboarding/presentation/widgets/onboarding_page_second.dart';
@@ -12,7 +14,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
+  final PageController _pageController = PageController(keepPage: false);
 
   final List<Widget> _pages = [
     const OnboardingPageFirst(),
@@ -25,26 +27,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           // ! 80 % space
           Expanded(
-            child: Container(
-              // поменять цвет части pageview
-              child: PageView(
-                controller: _pageController,
+            child: PageView(
+              controller: _pageController,
 
-                // при свайпе вызывается эта малышка
-                onPageChanged: (int index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
+              // при свайпе вызывается эта малышка
+              onPageChanged: (int index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
 
-                scrollDirection: Axis.horizontal,
-                children: _pages,
-              ),
+              scrollDirection: Axis.horizontal,
+              children: _pages,
             ),
           ),
 
@@ -76,12 +75,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     );
                   }),
                 ),
-                
+
                 SizedBox(height: 20),
-                
+
                 OnboardingButton(
-                  text: _currentPage == _pages.length - 1 ? "Начать" : "Далее",
-                  onTap: () {
+                  text: _currentPage == _pages.length - 1 ? "НАЧАТЬ" : "ДАЛЕЕ",
+                  onTap: () async {
                     // страница не последняя то идем дальше
                     if (_currentPage < _pages.length - 1) {
                       _pageController.nextPage(
@@ -89,9 +88,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         curve: Curves.easeOut,
                       );
                     } else {
-                      
-                      // ! потом обязтаельно передалть на какую нибудь обработку ошибок
-                      print("Переход в приложение...");
+                      final preferences = await SharedPreferences.getInstance();
+                      await preferences.setBool('onboarding_completed', true);
+                      if (!mounted) return;
+                      Navigator.of(this.context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        (_) => false,
+                      );
                     }
                   },
                 ),
@@ -110,5 +113,4 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _pageController.dispose(); //удаляем контроллер который уже не используется
     super.dispose();
   }
-  
 }

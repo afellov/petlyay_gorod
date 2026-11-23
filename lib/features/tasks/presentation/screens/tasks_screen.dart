@@ -1,702 +1,668 @@
 import 'package:flutter/material.dart';
 
-class TasksScreen extends StatefulWidget {
+const _pink = Color(0xFFDC3978);
+const _lightPink = Color(0xFFF9E2EC);
+
+class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
 
   @override
-  State<TasksScreen> createState() => _TasksScreenState();
-}
-
-class _TasksScreenState extends State<TasksScreen> {
-  int _selectedTab = 0; // 0 - Маршруты, 1 - Миссии
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      bottomNavigationBar: _buildBottomNav(),
-
-      body: Stack(
-        children: [
-          // ФОН ЭКРАНА
-          Positioned.fill(
-            // Раскомментируй строку ниже и вставь путь к фону с розовыми пятнами
-            // child: Image.asset('assets/images/bg_tasks.png', fit: BoxFit.cover),
-            child: Container(color: Colors.white),
-          ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-
-                // 1. ШАПКА
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildCustomAppBar(),
-                ),
-                const SizedBox(height: 20),
-
-                // 2. ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК (Сделан тоньше, как на макете)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildTabSwitch(),
-                ),
-                const SizedBox(height: 20),
-
-                // 3. ОСНОВНОЙ КОНТЕНТ
-                Expanded(
-                  child: SingleChildScrollView(
-                    // ОТСТУПЫ СТРАНИЦЫ 16 ПИКСЕЛЕЙ
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        // --- ДИНАМИЧЕСКИЙ БАННЕР ---
-                        _selectedTab == 0
-                            ? _buildRouteBanner()
-                            : _buildMissionBanner(),
-                        const SizedBox(height: 20),
-
-                        // --- ФИЛЬТРЫ (Квадратные со скруглением) ---
-                        _buildFiltersRow(),
-                        const SizedBox(height: 20),
-
-                        // --- ДИНАМИЧЕСКИЙ СПИСОК КАРТОЧЕК ---
-                        _selectedTab == 0
-                            ? _buildRoutesList()
-                            : _buildMissionsList(),
-
-                        const SizedBox(height: 40),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==========================================
-  // ВИДЖЕТЫ ЭКРАНА
-  // ==========================================
-
-  Widget _buildCustomAppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Icon(Icons.nightlight_round, size: 28),
-        const Text(
-          "ЗАДАНИЯ",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1,
-          ),
-        ),
-        const Icon(Icons.notifications_none, size: 30),
-      ],
-    );
-  }
-
-  // --- ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК ---
-  Widget _buildTabSwitch() {
-    return Container(
-      height: 44, // ИСПРАВЛЕНО: Сделал плашку тоньше (было 50)
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          _buildTabItem(text: "Маршруты", index: 0),
-          _buildTabItem(text: "Миссии", index: 1),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabItem({required String text, required int index}) {
-    bool isActive = _selectedTab == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedTab = index),
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isActive ? Colors.pink.shade50 : Colors.transparent,
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: Text(
-            text,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isActive ? Colors.pink : Colors.black,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // --- ФИЛЬТРЫ ---
-  Widget _buildFiltersRow() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _buildFilterIcon(Icons.search),
-          const SizedBox(width: 8),
-          _buildFilterIcon(Icons.filter_list),
-          const SizedBox(width: 8),
-          _buildFilterChip("Рядом", isActive: _selectedTab == 1),
-          const SizedBox(width: 8),
-          _buildFilterChip("До 30 мин", isActive: false),
-        ],
-      ),
-    );
-  }
-
-  // ИСПРАВЛЕНО: Сделал иконки квадратами со скруглением (как на макете)
-  Widget _buildFilterIcon(IconData icon) {
-    return Container(
-      width: 42,
-      height: 42,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12), // Скругленные квадраты
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Icon(icon, size: 20),
-    );
-  }
-
-  Widget _buildFilterChip(String text, {bool isActive = false}) {
-    return Container(
-      height: 42,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: isActive ? Colors.pink.shade50 : Colors.white,
-        borderRadius: BorderRadius.circular(12), // Под размер иконок
-        border: Border.all(
-          color: isActive ? Colors.pink : Colors.grey.shade300,
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-          color: isActive ? Colors.pink : Colors.black,
-        ),
-      ),
-    );
-  }
-
-  // --- БАННЕР 1: МАРШРУТЫ ---
-  Widget _buildRouteBanner() {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, top: 20, bottom: 20, right: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Случайные метки",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Ищите случайные метки на карте города и получайте награды за каждую пройденную точку!",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.pink,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    "Искать метки",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // ИСПРАВЛЕНО: Увеличена высота и добавлен Stack для 2 картинок (фон + карта)
-          Expanded(
-            flex: 4,
-            child: SizedBox(
-              height: 120, // Увеличил высоту фото
-              child: Stack(
-                children: [
-                  // Слой 1: Фон картинки
-                  Positioned.fill(
-                    child: Container(
-                      color: Colors.pink.shade50,
-                    ), // Заглушка фона
-                    // child: Image.asset('путь_к_фону_картинки', fit: BoxFit.cover),
-                  ),
-                  // Слой 2: Сама карта/маршрут
-                  Positioned.fill(
-                    child: Container(
-                      color: Colors.grey.withValues(alpha: 0.3),
-                    ), // Заглушка карты
-                    // child: Image.asset('путь_к_карте', fit: BoxFit.contain),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- БАННЕР 2: МИССИИ ---
-  Widget _buildMissionBanner() {
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.only(
-            left: 16,
-            top: 16,
-            bottom: 16,
-            right: 120,
-          ), // Место под кота
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.white,
+    body: SafeArea(
+      child: LayoutBuilder(
+        builder: (context, viewport) {
+          // The Figma content frame is 408 px wide within a 440 px screen.
+          final contentWidth = viewport.maxWidth - 32;
+          final scale = (contentWidth / 408).clamp(.68, 1.0);
+          return Column(
             children: [
-              const Text(
-                "Хотите потратить баллы?",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 8),
-              // ИСПРАВЛЕНО: line-height (height: 1.1) сделан меньше
-              const Text(
-                "Обменивайте накопленные\nбаллы на бонусы, скидки или\nподарки.",
-                style: TextStyle(fontSize: 11, color: Colors.grey, height: 1.1),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE5397F),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  "Потратить баллы",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // КОТ СПРАВА
-        Positioned(
-          right: 0,
-          bottom: 0,
-          top: 0,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              width: 120,
-              height: 100,
-              color: Colors.grey.shade300,
-            ), // Заменишь на Image.asset кота
-          ),
-        ),
-      ],
-    );
-  }
-
-  // --- СПИСОК 1: МАРШРУТЫ ---
-  Widget _buildRoutesList() {
-    return Column(
-      children: [
-        _buildRouteCard(
-          title: "Стальной характер города",
-          diffColor: Colors.orange,
-          diffText: "Средний",
-          badge: "БАРДАК",
-        ),
-        const SizedBox(height: 16),
-        _buildRouteCard(
-          title: "По следам великого писателя",
-          diffColor: Colors.green,
-          diffText: "Легкий",
-          badge: null,
-        ),
-      ],
-    );
-  }
-
-  // --- СПИСОК 2: МИССИИ ---
-  Widget _buildMissionsList() {
-    return Column(
-      children: [
-        _buildMissionCard(
-          title: "Купите кофе в Surf Coffee",
-          subtitle:
-              "Купите любое кофе в Surf coffee и получите за это вознаграждение",
-          badgeLeft: "SURF COFFEE",
-          badgeRight: "+70 Б.",
-        ),
-        const SizedBox(height: 16),
-        _buildMissionCard(
-          title: "Купите любое блюдо от 300руб.",
-          subtitle:
-              "Купите любое блюдо в “Бардак” и получите за это вознаграждение",
-          badgeLeft: "БАРДАК",
-          badgeRight: "+90 Б.",
-        ),
-      ],
-    );
-  }
-
-  // --- КАРТОЧКА МАРШРУТА ---
-  Widget _buildRouteCard({
-    required String title,
-    required Color diffColor,
-    required String diffText,
-    String? badge,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  width: 110,
-                  height: 130,
-                  color: Colors.grey.shade400,
-                ),
-              ),
-              if (badge != null)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      badge,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 9,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              const _TasksHeader(),
+              Expanded(
+                child: Stack(
                   children: [
-                    Icon(Icons.circle, size: 8, color: diffColor),
-                    const SizedBox(width: 4),
-                    Text(
-                      diffText,
-                      style: TextStyle(
-                        color: diffColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Opacity(
+                          opacity: .22,
+                          child: Image.asset(
+                            'assets/images/auth/bg_avatar.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.pink.shade50,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Text(
-                        "+100 XP",
-                        style: TextStyle(
-                          color: Colors.pink,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(16, 30 * scale, 16, 130),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _Tabs(scale: scale),
+                          SizedBox(height: 23 * scale),
+                          _RandomMarkersBanner(scale: scale),
+                          SizedBox(height: 24 * scale),
+                          _SearchFilters(scale: scale),
+                          SizedBox(height: 12 * scale),
+                          for (var i = 0; i < _figmaRoutes.length; i++) ...[
+                            _RouteCard(route: _figmaRoutes[i], scale: scale),
+                            SizedBox(height: 12 * scale),
+                          ],
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    height: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  "Описание маршрута кратко...",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.pink,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Text(
-                    "Начать маршрут",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
+              ),
+            ],
+          );
+        },
+      ),
+    ),
+  );
+}
+
+class _TasksHeader extends StatelessWidget {
+  const _TasksHeader();
+  @override
+  Widget build(BuildContext context) => Container(
+    color: Colors.white,
+    height: 48,
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Row(
+      children: [
+        const SizedBox(
+          width: 32,
+          child: Icon(Icons.dark_mode_outlined, color: Colors.black, size: 28),
+        ),
+        const Expanded(
+          child: Center(
+            child: Text(
+              'ЗАДАНИЯ',
+              style: TextStyle(
+                fontFamily: 'UNCAGE',
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                fontSize: 22,
+              ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        const SizedBox(
+          width: 32,
+          child: Icon(
+            Icons.notifications_none_outlined,
+            color: Colors.black,
+            size: 29,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
-  // --- КАРТОЧКА МИССИИ ---
-  Widget _buildMissionCard({
-    required String title,
-    required String subtitle,
-    required String badgeLeft,
-    required String badgeRight,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
+class _Tabs extends StatelessWidget {
+  const _Tabs({required this.scale});
+  final double scale;
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Container(
+          height: 40 * scale,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: _lightPink,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Text(
+            'Маршруты',
+            style: TextStyle(
+              fontFamily: 'Arial',
+              fontWeight: FontWeight.w700,
+              fontSize: 17 * scale,
+              color: _pink,
+            ),
+          ),
+        ),
       ),
-      child: Row(
-        children: [
-          Stack(
+      SizedBox(width: 12 * scale),
+      Expanded(
+        child: Container(
+          height: 40 * scale,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: const [
+              BoxShadow(color: Color(0x24000000), blurRadius: 5),
+            ],
+          ),
+          child: Text(
+            'Миссии',
+            style: TextStyle(
+              fontFamily: 'Arial',
+              fontWeight: FontWeight.w700,
+              fontSize: 17 * scale,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+// The image slot follows Figma. Set this path when the original map art is supplied.
+const _mapAsset = 'assets/images/tasks/route_map.png';
+
+class _RandomMarkersBanner extends StatelessWidget {
+  const _RandomMarkersBanner({required this.scale});
+  final double scale;
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    height: 152 * scale,
+    padding: EdgeInsets.fromLTRB(
+      14 * scale,
+      10 * scale,
+      10 * scale,
+      10 * scale,
+    ),
+    decoration: _cardDecoration(15),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 191 * scale,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  width: 140,
-                  height: 130,
-                  color: Colors.grey.shade400,
+              Text(
+                'Случайные метки',
+                maxLines: 1,
+                style: TextStyle(
+                  fontFamily: 'Arial',
+                  fontSize: 20 * scale,
+                  height: 1.1,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
               ),
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
+              SizedBox(height: 10 * scale),
+              Expanded(
+                child: Text(
+                  'Ищите случайные метки на карте города и получайте награды за каждую пройденную точку!',
+                  style: TextStyle(
+                    fontFamily: 'Arial',
+                    fontSize: 12 * scale,
+                    height: 1.33,
+                    color: const Color(0xFF4C4C4C),
                   ),
-                  decoration: BoxDecoration(
+                ),
+              ),
+              Container(
+                width: 143 * scale,
+                height: 28 * scale,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE9669B),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Искать метки',
+                  style: TextStyle(
+                    fontFamily: 'Russo One',
+                    fontSize: 12 * scale,
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    badgeLeft,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 9,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.pink.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    badgeRight,
-                    style: const TextStyle(
-                      color: Colors.pink,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 9,
-                    ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    height: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE5397F),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    "Посмотреть на карте",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- НИЖНЕЕ МЕНЮ ---
-  Widget _buildBottomNav() {
-    return Container(
-      height: 85,
-      padding: const EdgeInsets.only(bottom: 15, top: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _navItem(Icons.home_outlined, "Главная"),
-          _navItem(Icons.assignment, "Задания", isActive: true),
-          _navItem(Icons.map_outlined, "Карта"),
-          _navItem(Icons.shopping_bag_outlined, "Магазин"),
-          _navItem(Icons.person_outline, "Профиль"),
-        ],
-      ),
-    );
-  }
-
-  Widget _navItem(IconData icon, String label, {bool isActive = false}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isActive ? Colors.pink.shade50 : Colors.transparent,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: isActive ? Colors.pink : Colors.black,
-            size: 24,
-          ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-            color: isActive ? Colors.pink : Colors.grey.shade800,
+        const Spacer(),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(11),
+          child: SizedBox(
+            width: 126 * scale,
+            height: 130 * scale,
+            child: Image.asset(
+              _mapAsset,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => const _MapArtworkPlaceholder(),
+            ),
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
 }
+
+class _MapArtworkPlaceholder extends StatelessWidget {
+  const _MapArtworkPlaceholder();
+  @override
+  Widget build(BuildContext context) => const CustomPaint(
+    painter: _MapArtworkPainter(),
+    child: SizedBox.expand(),
+  );
+}
+
+class _MapArtworkPainter extends CustomPainter {
+  const _MapArtworkPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bounds = Offset.zero & size;
+    canvas.drawRect(bounds, Paint()..color = const Color(0xFFF5E4E8));
+    final street = Paint()
+      ..color = const Color(0xFFFFFFFF)
+      ..strokeWidth = 4;
+    final blocks = [
+      const Color(0xFFD7CDD7),
+      const Color(0xFFE6D6D9),
+      const Color(0xFFCDC1CE),
+      const Color(0xFFD5DDBB),
+    ];
+    for (var column = -2; column < 9; column++) {
+      for (var row = -2; row < 9; row++) {
+        final rect = Rect.fromLTWH(
+          column * 23.0 + (row.isEven ? 9 : 0),
+          row * 21.0,
+          19,
+          17,
+        );
+        canvas.drawRect(
+          rect,
+          Paint()..color = blocks[(column.abs() + row.abs()) % blocks.length],
+        );
+      }
+    }
+    for (var x = -size.height; x < size.width + size.height; x += 24) {
+      canvas.drawLine(
+        Offset(x.toDouble(), 0),
+        Offset(x + size.height, size.height),
+        street,
+      );
+    }
+    final river = Path()
+      ..moveTo(size.width * .38, size.height)
+      ..cubicTo(
+        size.width * .65,
+        size.height * .73,
+        size.width * .67,
+        size.height * .61,
+        size.width,
+        size.height * .5,
+      );
+    canvas.drawPath(
+      river,
+      Paint()
+        ..color = const Color(0xFFF2EBCD)
+        ..strokeWidth = 26
+        ..style = PaintingStyle.stroke,
+    );
+    canvas.drawPath(
+      river,
+      Paint()
+        ..color = const Color(0xFF91B3D5)
+        ..strokeWidth = 19
+        ..style = PaintingStyle.stroke,
+    );
+    final points = [
+      Offset(size.width * .75, size.height * .18),
+      Offset(size.width * .36, size.height * .51),
+      Offset(size.width * .79, size.height * .79),
+    ];
+    final route = Path()
+      ..moveTo(points[0].dx, points[0].dy)
+      ..quadraticBezierTo(
+        size.width * .78,
+        size.height * .4,
+        points[1].dx,
+        points[1].dy,
+      )
+      ..quadraticBezierTo(
+        size.width * .35,
+        size.height * .83,
+        points[2].dx,
+        points[2].dy,
+      );
+    final metrics = route.computeMetrics();
+    final dash = Paint()
+      ..color = const Color(0xFFD84980)
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+    for (final metric in metrics) {
+      for (double d = 0; d < metric.length; d += 8) {
+        canvas.drawPath(
+          metric.extractPath(d, (d + 4).clamp(0, metric.length)),
+          dash,
+        );
+      }
+    }
+    for (final point in points) {
+      canvas.drawCircle(point, 12, Paint()..color = const Color(0xFFD84980));
+      canvas.drawCircle(point, 5, Paint()..color = Colors.white);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _MapArtworkPainter oldDelegate) => false;
+}
+
+class _SearchFilters extends StatelessWidget {
+  const _SearchFilters({required this.scale});
+  final double scale;
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      _FilterBox(
+        width: 50 * scale,
+        height: 40 * scale,
+        child: Icon(Icons.search, size: 23 * scale),
+      ),
+      SizedBox(width: 12 * scale),
+      _FilterBox(
+        width: 50 * scale,
+        height: 40 * scale,
+        child: Icon(Icons.filter_list, size: 23 * scale),
+      ),
+      SizedBox(width: 12 * scale),
+      _FilterBox(
+        width: 88 * scale,
+        height: 32 * scale,
+        child: Text(
+          'Рядом',
+          style: TextStyle(
+            fontFamily: 'Arial',
+            fontSize: 14 * scale,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      SizedBox(width: 12 * scale),
+      _FilterBox(
+        width: 99 * scale,
+        height: 32 * scale,
+        child: Text(
+          'До 30 мин',
+          style: TextStyle(
+            fontFamily: 'Arial',
+            fontSize: 14 * scale,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+class _FilterBox extends StatelessWidget {
+  const _FilterBox({
+    required this.width,
+    required this.height,
+    required this.child,
+  });
+  final double width, height;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Container(
+    width: width,
+    height: height,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: const [BoxShadow(color: Color(0x23000000), blurRadius: 4)],
+    ),
+    child: child,
+  );
+}
+
+class _RouteCard extends StatelessWidget {
+  const _RouteCard({required this.route, required this.scale});
+  final _RoutePreview route;
+  final double scale;
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    height: 163 * scale,
+    padding: EdgeInsets.all(8 * scale),
+    decoration: _cardDecoration(15),
+    child: Row(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: SizedBox(
+            width: 142 * scale,
+            height: 143 * scale,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: route.asset == null
+                      ? const ColoredBox(
+                          color: Color(0xFFF0E2E7),
+                          child: Center(
+                            child: Icon(
+                              Icons.directions_walk,
+                              color: Color(0xFF665A60),
+                              size: 38,
+                            ),
+                          ),
+                        )
+                      : Image.asset(
+                          route.asset!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const ColoredBox(
+                            color: Color(0xFFF0E2E7),
+                            child: Center(
+                              child: Icon(
+                                Icons.directions_walk,
+                                color: Color(0xFF665A60),
+                                size: 38,
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
+                if (route.venue != null)
+                  Positioned(
+                    left: 4 * scale,
+                    top: 4 * scale,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6 * scale,
+                        vertical: 2 * scale,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        route.venue!,
+                        style: TextStyle(
+                          fontFamily: 'UNCAGE',
+                          fontSize: 9 * scale,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(width: 14 * scale),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 4 * scale,
+                    height: 4 * scale,
+                    decoration: BoxDecoration(
+                      color: route.difficultyColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: 6 * scale),
+                  Expanded(
+                    child: Text(
+                      route.difficulty,
+                      style: TextStyle(
+                        fontFamily: 'Arial',
+                        fontSize: 12 * scale,
+                        color: route.difficultyColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  for (final reward in route.rewards)
+                    Padding(
+                      padding: EdgeInsets.only(left: 4 * scale),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6 * scale,
+                          vertical: 3 * scale,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9DCE8),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          reward,
+                          style: TextStyle(
+                            color: _pink,
+                            fontSize: 11 * scale,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                route.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Arial',
+                  fontSize: 14 * scale,
+                  height: 1.14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 6 * scale),
+              Text(
+                route.summary,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Arial',
+                  fontSize: 11 * scale,
+                  height: 1.45,
+                  color: const Color(0xCC000000),
+                ),
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 30 * scale,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: _pink,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Text(
+                        'Начать маршрут',
+                        style: TextStyle(
+                          fontFamily: 'Russo One',
+                          fontSize: 12 * scale,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Container(
+                    width: 30 * scale,
+                    height: 30 * scale,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF9DCE8),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      route.favorite ? Icons.favorite : Icons.favorite_border,
+                      color: _pink,
+                      size: 18 * scale,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+BoxDecoration _cardDecoration(double radius) => BoxDecoration(
+  color: Colors.white,
+  borderRadius: BorderRadius.circular(radius),
+  boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 4)],
+);
+
+class _RoutePreview {
+  const _RoutePreview(
+    this.title,
+    this.summary,
+    this.difficulty,
+    this.difficultyColor,
+    this.rewards, {
+    this.venue,
+    this.asset,
+    this.favorite = false,
+  });
+  final String title, summary, difficulty;
+  final Color difficultyColor;
+  final List<String> rewards;
+  final String? venue, asset;
+  final bool favorite;
+}
+
+const _figmaRoutes = <_RoutePreview>[
+  _RoutePreview(
+    'Стальной характер города',
+    'Разгадайте, как строительство комбината изменило Новокузнецк.',
+    'Средний',
+    Color(0xFFE18400),
+    ['+100 XP', '+150 Б.'],
+    venue: 'БАРДАК',
+    asset: 'assets/images/tasks/steel_city.png',
+  ),
+  _RoutePreview(
+    'По следам великого писателя',
+    'Пройдите по старой части города и раскройте историю его жизни в Кузнецке',
+    'Лёгкий',
+    Color(0xFF11B928),
+    ['+100 XP'],
+    favorite: true,
+    asset: 'assets/images/tasks/writer.png',
+  ),
+  _RoutePreview(
+    'Город, воспетый поэтом',
+    'Пройдите по центру и соберите знаменитые строки Маяковского о городе.',
+    'Сложный',
+    Color(0xFFE00000),
+    ['+90 XP', '+95 Б.'],
+    venue: 'SURF COFFEE',
+    asset: 'assets/images/tasks/poet.png',
+  ),
+];

@@ -14,9 +14,11 @@ class OnboardingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
+        color: colors.surface,
+        border: Border.all(color: colors.outline),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -29,7 +31,7 @@ class OnboardingCard extends StatelessWidget {
         child: Row(
           children: [
             //! переделать под svg и импортировать другие фотки (.svg)
-            Image.asset(iconPath, width: 67, height: 67,fit: BoxFit.contain),
+            Image.asset(iconPath, width: 67, height: 67, fit: BoxFit.contain),
 
             SizedBox(width: 20),
             Expanded(
@@ -39,7 +41,8 @@ class OnboardingCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Color.fromRGBO(0, 0, 0, 1),
+                      fontFamily: 'Bebas Neue Cyrillic',
+                      color: colors.onSurface,
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       height: 1.01,
