@@ -77,7 +77,10 @@ flutter:
     - assets/images/auth/
     - assets/images/home/
     - assets/images/tasks/
+    - assets/images/backgrounds/light/
+    - assets/images/backgrounds/dark/
     - assets/vectors/
+    - assets/vectors/ui/
 
   fonts:
     - family: Bebas Neue Cyrillic

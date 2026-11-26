@@ -9,11 +9,14 @@ class MapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            const CustomAppBar(title: 'КАРТА'),
-            Expanded(
+      // Let the map continue behind the floating navigation and home indicator.
+      body: Column(
+        children: [
+          const CustomAppBar(title: 'КАРТА'),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              bottom: false,
               child: FlutterMap(
                 options: const MapOptions(
                   initialCenter: LatLng(53.7596, 87.1216),
@@ -34,8 +37,8 @@ class MapScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

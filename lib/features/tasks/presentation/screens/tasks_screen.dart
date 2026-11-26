@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:walk_city/core/theme/app_assets.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 import 'package:walk_city/core/widgets/custom_app_bar.dart';
 import 'package:walk_city/features/tasks/presentation/widgets/mission_content.dart';
 
 const _pink = Color(0xFFDC3978);
-const _lightPink = Color(0xFFF9E2EC);
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -17,89 +19,93 @@ class _TasksScreenState extends State<TasksScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    body: SafeArea(
-      child: LayoutBuilder(
-        builder: (context, viewport) {
-          // The Figma content frame is 408 px wide within a 440 px screen.
-          final contentWidth = viewport.maxWidth - 32;
-          final scale = (contentWidth / 408).clamp(.68, 1.0);
-          return Column(
-            children: [
-              const CustomAppBar(title: 'ЗАДАНИЯ', showNotifications: true),
-              Expanded(
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Opacity(
-                          opacity: .22,
-                          child: Image.asset(
-                            'assets/images/auth/bg_avatar.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Column(
+    backgroundColor: Colors.transparent,
+    body: Stack(
+      children: [
+        const AppPageBackground(),
+        Column(
+          children: [
+            const CustomAppBar(title: 'ЗАДАНИЯ'),
+            Expanded(
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: LayoutBuilder(
+                  builder: (context, viewport) {
+                    // The Figma content frame is 408 px wide within a 440 px screen.
+                    final contentWidth = viewport.maxWidth - 32;
+                    final scale = (contentWidth / 408).clamp(.68, 1.0);
+                    return Column(
                       children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            16,
-                            20 * scale,
-                            16,
-                            23 * scale,
-                          ),
-                          child: _Tabs(
-                            scale: scale,
-                            showMissions: _showMissions,
-                            onSelect: (value) =>
-                                setState(() => _showMissions = value),
-                          ),
-                        ),
                         Expanded(
-                          child: SingleChildScrollView(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (_showMissions)
-                                  MissionBanner(scale: scale)
-                                else
-                                  _RandomMarkersBanner(scale: scale),
-                                SizedBox(height: 24 * scale),
-                                _SearchFilters(
-                                  scale: scale,
-                                  missions: _showMissions,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  16,
+                                  20 * scale,
+                                  16,
+                                  23 * scale,
                                 ),
-                                SizedBox(height: 12 * scale),
-                                if (_showMissions)
-                                  MissionList(scale: scale)
-                                else
-                                  for (
-                                    var i = 0;
-                                    i < _figmaRoutes.length;
-                                    i++
-                                  ) ...[
-                                    _RouteCard(
-                                      route: _figmaRoutes[i],
-                                      scale: scale,
-                                    ),
-                                    SizedBox(height: 12 * scale),
-                                  ],
-                              ],
-                            ),
+                                child: _Tabs(
+                                  scale: scale,
+                                  showMissions: _showMissions,
+                                  onSelect: (value) =>
+                                      setState(() => _showMissions = value),
+                                ),
+                              ),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    0,
+                                    16,
+                                    130,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (_showMissions)
+                                        MissionBanner(scale: scale)
+                                      else
+                                        _RandomMarkersBanner(scale: scale),
+                                      SizedBox(height: 24 * scale),
+                                      _SearchFilters(
+                                        scale: scale,
+                                        missions: _showMissions,
+                                      ),
+                                      SizedBox(height: 12 * scale),
+                                      if (_showMissions)
+                                        MissionList(scale: scale)
+                                      else
+                                        for (
+                                          var i = 0;
+                                          i < _figmaRoutes.length;
+                                          i++
+                                        ) ...[
+                                          _RouteCard(
+                                            route: _figmaRoutes[i],
+                                            scale: scale,
+                                          ),
+                                          SizedBox(height: 12 * scale),
+                                        ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        ),
+      ],
     ),
   );
 }
@@ -123,7 +129,9 @@ class _Tabs extends StatelessWidget {
             height: 40 * scale,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: showMissions ? Colors.white : _lightPink,
+              color: showMissions
+                  ? AppVisuals.of(context).card
+                  : AppVisuals.of(context).pill,
               borderRadius: BorderRadius.circular(25),
               boxShadow: showMissions
                   ? const [BoxShadow(color: Color(0x24000000), blurRadius: 5)]
@@ -135,7 +143,9 @@ class _Tabs extends StatelessWidget {
                 fontFamily: 'Arial',
                 fontWeight: FontWeight.w700,
                 fontSize: 17 * scale,
-                color: showMissions ? Colors.black : _pink,
+                color: showMissions
+                    ? AppVisuals.of(context).heading
+                    : AppVisuals.of(context).accentText,
               ),
             ),
           ),
@@ -149,7 +159,9 @@ class _Tabs extends StatelessWidget {
             height: 40 * scale,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: showMissions ? _lightPink : Colors.white,
+              color: showMissions
+                  ? AppVisuals.of(context).pill
+                  : AppVisuals.of(context).card,
               borderRadius: BorderRadius.circular(25),
               boxShadow: showMissions
                   ? null
@@ -161,7 +173,9 @@ class _Tabs extends StatelessWidget {
                 fontFamily: 'Arial',
                 fontWeight: FontWeight.w700,
                 fontSize: 17 * scale,
-                color: showMissions ? _pink : Colors.black,
+                color: showMissions
+                    ? AppVisuals.of(context).accentText
+                    : AppVisuals.of(context).heading,
               ),
             ),
           ),
@@ -187,7 +201,7 @@ class _RandomMarkersBanner extends StatelessWidget {
       10 * scale,
       10 * scale,
     ),
-    decoration: _cardDecoration(15),
+    decoration: _cardDecoration(context, 15),
     child: Row(
       children: [
         SizedBox(
@@ -203,7 +217,7 @@ class _RandomMarkersBanner extends StatelessWidget {
                   fontSize: 20 * scale,
                   height: 1.1,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: AppVisuals.of(context).heading,
                 ),
               ),
               SizedBox(height: 10 * scale),
@@ -214,7 +228,7 @@ class _RandomMarkersBanner extends StatelessWidget {
                     fontFamily: 'Arial',
                     fontSize: 12 * scale,
                     height: 1.33,
-                    color: const Color(0xFF4C4C4C),
+                    color: AppVisuals.of(context).body,
                   ),
                 ),
               ),
@@ -239,16 +253,32 @@ class _RandomMarkersBanner extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(11),
-          child: SizedBox(
-            width: 126 * scale,
-            height: 130 * scale,
-            child: Image.asset(
-              _mapAsset,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const _MapArtworkPlaceholder(),
-            ),
+        SizedBox(
+          width: 150 * scale,
+          height: 130 * scale,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  AppAssets.bannerSplatter,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: 126 * scale,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: Image.asset(
+                    _mapAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => const _MapArtworkPlaceholder(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -378,17 +408,27 @@ class _SearchFilters extends StatelessWidget {
       _FilterBox(
         width: 50 * scale,
         height: 40 * scale,
-        child: Icon(Icons.search, size: 23 * scale),
+        child: SvgPicture.asset(
+          AppAssets.search,
+          width: 23 * scale,
+          colorFilter: ColorFilter.mode(
+            AppVisuals.of(context).heading,
+            BlendMode.srcIn,
+          ),
+        ),
       ),
       SizedBox(width: 12 * scale),
       _FilterBox(
         width: 50 * scale,
         height: 40 * scale,
         highlighted: missions,
-        child: Icon(
-          Icons.filter_list,
-          size: 23 * scale,
-          color: missions ? _pink : Colors.black,
+        child: SvgPicture.asset(
+          AppAssets.filter,
+          width: 23 * scale,
+          colorFilter: ColorFilter.mode(
+            missions ? _pink : AppVisuals.of(context).heading,
+            BlendMode.srcIn,
+          ),
         ),
       ),
       SizedBox(width: 12 * scale),
@@ -402,7 +442,9 @@ class _SearchFilters extends StatelessWidget {
             fontFamily: 'Arial',
             fontSize: 14 * scale,
             fontWeight: FontWeight.w700,
-            color: missions ? _pink : Colors.black,
+            color: missions
+                ? AppVisuals.of(context).accentText
+                : AppVisuals.of(context).heading,
           ),
         ),
       ),
@@ -416,6 +458,7 @@ class _SearchFilters extends StatelessWidget {
             fontFamily: 'Arial',
             fontSize: 14 * scale,
             fontWeight: FontWeight.w700,
+            color: AppVisuals.of(context).heading,
           ),
         ),
       ),
@@ -439,7 +482,9 @@ class _FilterBox extends StatelessWidget {
     height: height,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: highlighted ? const Color(0xFFFCEAF1) : Colors.white,
+      color: highlighted
+          ? AppVisuals.of(context).pill
+          : AppVisuals.of(context).card,
       borderRadius: BorderRadius.circular(12),
       boxShadow: const [BoxShadow(color: Color(0x23000000), blurRadius: 4)],
     ),
@@ -456,7 +501,7 @@ class _RouteCard extends StatelessWidget {
     width: double.infinity,
     height: 163 * scale,
     padding: EdgeInsets.all(8 * scale),
-    decoration: _cardDecoration(15),
+    decoration: _cardDecoration(context, 15),
     child: Row(
       children: [
         ClipRRect(
@@ -557,13 +602,13 @@ class _RouteCard extends StatelessWidget {
                           vertical: 3 * scale,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF9DCE8),
+                          color: AppVisuals.of(context).reward,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
                           reward,
                           style: TextStyle(
-                            color: _pink,
+                            color: AppVisuals.of(context).accentText,
                             fontSize: 11 * scale,
                             fontWeight: FontWeight.w700,
                           ),
@@ -572,7 +617,7 @@ class _RouteCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const Spacer(),
+              SizedBox(height: 11 * scale),
               Text(
                 route.title,
                 maxLines: 2,
@@ -582,22 +627,23 @@ class _RouteCard extends StatelessWidget {
                   fontSize: 14 * scale,
                   height: 1.14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: AppVisuals.of(context).heading,
                 ),
               ),
               SizedBox(height: 6 * scale),
-              Text(
-                route.summary,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: 'Arial',
-                  fontSize: 11 * scale,
-                  height: 1.45,
-                  color: const Color(0xCC000000),
+              Expanded(
+                child: Text(
+                  route.summary,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Arial',
+                    fontSize: 11 * scale,
+                    height: 1.45,
+                    color: AppVisuals.of(context).body,
+                  ),
                 ),
               ),
-              const Spacer(),
               Row(
                 children: [
                   Expanded(
@@ -622,8 +668,8 @@ class _RouteCard extends StatelessWidget {
                   Container(
                     width: 30 * scale,
                     height: 30 * scale,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF9DCE8),
+                    decoration: BoxDecoration(
+                      color: AppVisuals.of(context).reward,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -642,11 +688,14 @@ class _RouteCard extends StatelessWidget {
   );
 }
 
-BoxDecoration _cardDecoration(double radius) => BoxDecoration(
-  color: Colors.white,
-  borderRadius: BorderRadius.circular(radius),
-  boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 4)],
-);
+BoxDecoration _cardDecoration(BuildContext context, double radius) =>
+    BoxDecoration(
+      color: AppVisuals.of(context).card,
+      borderRadius: BorderRadius.circular(radius),
+      boxShadow: [
+        BoxShadow(color: AppVisuals.of(context).shadow, blurRadius: 4),
+      ],
+    );
 
 class _RoutePreview {
   const _RoutePreview(

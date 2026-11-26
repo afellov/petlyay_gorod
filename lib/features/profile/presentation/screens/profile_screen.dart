@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:walk_city/core/network/pb_client.dart';
 import 'package:walk_city/core/widgets/custom_app_bar.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 import 'package:walk_city/features/auth/presentation/screens/login_screen.dart';
 import 'package:walk_city/features/profile/presentation/screens/profile_avatar_edit_screen.dart';
 import 'package:walk_city/features/profile/presentation/screens/profile_edit_screen.dart';
@@ -61,83 +62,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      body: SafeArea(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(AppVisuals.of(context).background),
+            fit: BoxFit.cover,
+            colorFilter: AppVisuals.of(context).dark
+                ? const ColorFilter.mode(
+                    AppVisuals.darkBackgroundTint,
+                    BlendMode.multiply,
+                  )
+                : null,
+          ),
+        ),
         child: Column(
           children: [
             const CustomAppBar(title: 'ПРОФИЛЬ'),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
-                child: Column(
-                  children: [
-                    ProfileAvatarHeader(
-                      name: name.isEmpty ? 'Пользователь' : name,
-                      username: username,
-                      avatarUrl: avatarUrl,
-                    ),
-                    const SizedBox(height: 18),
-                    ProfileActionButtons(
-                      onEditPhoto: () => _open(const ProfileAvatarEditScreen()),
-                      onEditData: () => _open(ProfileEditScreen(name: name)),
-                      onQr: () => _open(const QrPlaceholderScreen()),
-                      onSupport: () =>
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Контакт службы поддержки ещё не настроен.',
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 130),
+                  child: Column(
+                    children: [
+                      ProfileAvatarHeader(
+                        name: name.isEmpty ? 'Пользователь' : name,
+                        username: username,
+                        avatarUrl: avatarUrl,
+                      ),
+                      const SizedBox(height: 18),
+                      ProfileActionButtons(
+                        onEditPhoto: () =>
+                            _open(const ProfileAvatarEditScreen()),
+                        onEditData: () => _open(ProfileEditScreen(name: name)),
+                        onQr: () => _open(const QrPlaceholderScreen()),
+                        onSupport: () =>
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Контакт службы поддержки ещё не настроен.',
+                                ),
                               ),
                             ),
+                      ),
+                      const SizedBox(height: 16),
+                      Card(
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.stars_rounded,
+                            color: colors.primary,
                           ),
-                    ),
-                    const SizedBox(height: 16),
-                    Card(
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.stars_rounded,
-                          color: colors.primary,
-                        ),
-                        title: const Text('Баллы'),
-                        trailing: Text(
-                          '$points',
-                          style: Theme.of(context).textTheme.titleLarge,
+                          title: const Text('Баллы'),
+                          trailing: Text(
+                            '$points',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    ProfileStatsCard(
-                      tasksCompleted: tasksCompleted,
-                      kmPassed: kilometersWalked,
-                    ),
-                    const SizedBox(height: 16),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.emoji_events_outlined,
-                              color: colors.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                'Общий рейтинг появится после его запуска.',
+                      const SizedBox(height: 12),
+                      ProfileStatsCard(
+                        tasksCompleted: tasksCompleted,
+                        kmPassed: kilometersWalked,
+                      ),
+                      const SizedBox(height: 16),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.emoji_events_outlined,
+                                color: colors.primary,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text(
+                                  'Общий рейтинг появится после его запуска.',
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _logout,
-                        icon: const Icon(Icons.logout),
-                        label: const Text('Выйти из аккаунта'),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _logout,
+                          icon: const Icon(Icons.logout),
+                          label: const Text('Выйти из аккаунта'),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

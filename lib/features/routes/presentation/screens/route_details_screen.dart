@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 import 'package:walk_city/features/routes/data/repositories/route_repository.dart';
 import 'package:walk_city/features/routes/domain/route.dart' as domain;
 import 'package:walk_city/features/routes/presentation/screens/active_route_screen.dart';
@@ -54,51 +55,68 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Маршрут')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-        children: [
-          if (route.coverUrl != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                route.coverUrl!,
-                height: 240,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _imagePlaceholder(colors),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(AppVisuals.of(context).background),
+            fit: BoxFit.cover,
+            colorFilter: AppVisuals.of(context).dark
+                ? const ColorFilter.mode(
+                    AppVisuals.darkBackgroundTint,
+                    BlendMode.multiply,
+                  )
+                : null,
+          ),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          children: [
+            if (route.coverUrl != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  route.coverUrl!,
+                  height: 240,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => _imagePlaceholder(colors),
+                ),
+              )
+            else
+              _imagePlaceholder(colors),
+            const SizedBox(height: 20),
+            Text(
+              route.title,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            if (facts.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: facts.map((fact) => Chip(label: Text(fact))).toList(),
               ),
-            )
-          else
-            _imagePlaceholder(colors),
-          const SizedBox(height: 20),
-          Text(route.title, style: Theme.of(context).textTheme.headlineMedium),
-          if (facts.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: facts.map((fact) => Chip(label: Text(fact))).toList(),
+            ],
+            const SizedBox(height: 20),
+            Text(
+              route.description.isNotEmpty
+                  ? route.description
+                  : route.summary.isNotEmpty
+                  ? route.summary
+                  : 'Описание маршрута пока не добавлено.',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 28),
+            FilledButton(
+              onPressed: _starting || _started ? null : _start,
+              child: _starting
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(_started ? 'Маршрут начат' : 'Начать маршрут'),
             ),
           ],
-          const SizedBox(height: 20),
-          Text(
-            route.description.isNotEmpty
-                ? route.description
-                : route.summary.isNotEmpty
-                ? route.summary
-                : 'Описание маршрута пока не добавлено.',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 28),
-          FilledButton(
-            onPressed: _starting || _started ? null : _start,
-            child: _starting
-                ? const SizedBox.square(
-                    dimension: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(_started ? 'Маршрут начат' : 'Начать маршрут'),
-          ),
-        ],
+        ),
       ),
     );
   }

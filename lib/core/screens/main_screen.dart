@@ -35,6 +35,7 @@ class _MainScreenState extends State<MainScreen> {
         }
       },
       child: Scaffold(
+        // Keep the area around the floating island transparent.
         extendBody: true,
         body: IndexedStack(index: _currentIndex, children: _screens),
         bottomNavigationBar: CustomBottomNavBar(

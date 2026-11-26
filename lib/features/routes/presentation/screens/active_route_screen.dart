@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:walk_city/features/routes/data/repositories/route_repository.dart';
@@ -193,75 +194,89 @@ class _ActiveRouteScreenState extends State<ActiveRouteScreen> {
         );
     return Scaffold(
       appBar: AppBar(title: const Text('Прохождение маршрута')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                Text(
-                  widget.route.title,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _checkpoints.isEmpty
-                      ? 'Для маршрута ещё не настроены контрольные точки.'
-                      : 'Посетите контрольные точки по порядку. Радиус — ${widget.route.checkpointRadiusM} м.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                if (_position != null)
-                  ListTile(
-                    leading: const Icon(Icons.my_location),
-                    title: Text(
-                      'Точность GPS: ${_position!.accuracy.toStringAsFixed(0)} м',
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(AppVisuals.of(context).background),
+            fit: BoxFit.cover,
+            colorFilter: AppVisuals.of(context).dark
+                ? const ColorFilter.mode(
+                    AppVisuals.darkBackgroundTint,
+                    BlendMode.multiply,
+                  )
+                : null,
+          ),
+        ),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Text(
+                    widget.route.title,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _checkpoints.isEmpty
+                        ? 'Для маршрута ещё не настроены контрольные точки.'
+                        : 'Посетите контрольные точки по порядку. Радиус — ${widget.route.checkpointRadiusM} м.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  if (_position != null)
+                    ListTile(
+                      leading: const Icon(Icons.my_location),
+                      title: Text(
+                        'Точность GPS: ${_position!.accuracy.toStringAsFixed(0)} м',
+                      ),
+                    ),
+                  if (_gpsError != null)
+                    Card(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(_gpsError!),
+                      ),
+                    ),
+                  if (_message != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(_message!),
+                    ),
+                  const SizedBox(height: 8),
+                  for (var i = 0; i < _checkpoints.length; i++)
+                    ListTile(
+                      leading: Icon(
+                        _visited.contains(_checkpoints[i].id)
+                            ? Icons.check_circle
+                            : (_checkpoints[i].getBoolValue('is_finish')
+                                  ? Icons.flag
+                                  : Icons.radio_button_unchecked),
+                        color: _visited.contains(_checkpoints[i].id)
+                            ? Colors.green
+                            : null,
+                      ),
+                      title: Text(_checkpoints[i].getStringValue('title')),
+                      subtitle: Text(
+                        i == _visited.length
+                            ? 'Следующая точка'
+                            : 'Контрольная точка ${i + 1}',
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                  FilledButton.icon(
+                    onPressed:
+                        completedAll && finishNearby && !_sending && !_finished
+                        ? _finish
+                        : null,
+                    icon: const Icon(Icons.flag),
+                    label: Text(
+                      _finished ? 'Маршрут завершён' : 'Завершить маршрут',
                     ),
                   ),
-                if (_gpsError != null)
-                  Card(
-                    color: Theme.of(context).colorScheme.errorContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(_gpsError!),
-                    ),
-                  ),
-                if (_message != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(_message!),
-                  ),
-                const SizedBox(height: 8),
-                for (var i = 0; i < _checkpoints.length; i++)
-                  ListTile(
-                    leading: Icon(
-                      _visited.contains(_checkpoints[i].id)
-                          ? Icons.check_circle
-                          : (_checkpoints[i].getBoolValue('is_finish')
-                                ? Icons.flag
-                                : Icons.radio_button_unchecked),
-                      color: _visited.contains(_checkpoints[i].id)
-                          ? Colors.green
-                          : null,
-                    ),
-                    title: Text(_checkpoints[i].getStringValue('title')),
-                    subtitle: Text(
-                      i == _visited.length
-                          ? 'Следующая точка'
-                          : 'Контрольная точка ${i + 1}',
-                    ),
-                  ),
-                const SizedBox(height: 20),
-                FilledButton.icon(
-                  onPressed:
-                      completedAll && finishNearby && !_sending && !_finished
-                      ? _finish
-                      : null,
-                  icon: const Icon(Icons.flag),
-                  label: Text(
-                    _finished ? 'Маршрут завершён' : 'Завершить маршрут',
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
+      ),
     );
   }
 }

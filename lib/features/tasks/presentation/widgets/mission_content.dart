@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:walk_city/core/theme/app_assets.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 
 const _pink = Color(0xFFDC3978);
 
-// Replace these assets with the approved artwork without changing the widgets.
 abstract final class MissionArtwork {
-  static const cat = 'assets/images/tasks/mission_cat.svg';
+  static const cat = 'assets/images/tasks/mission_cat.png';
   static const surf = 'assets/images/tasks/surf_placeholder.svg';
   static const bardak = 'assets/images/tasks/bardak_placeholder.svg';
 }
@@ -17,12 +18,19 @@ class MissionBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     height: 152 * scale,
-    decoration: _decoration(15),
+    decoration: _decoration(context, 15),
     child: LayoutBuilder(
       builder: (context, bounds) {
         final inset = 12 * scale;
         return Stack(
           children: [
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: bounds.maxWidth * .5,
+              child: Image.asset(AppAssets.bannerSplatter, fit: BoxFit.contain),
+            ),
             Positioned(
               top: inset,
               left: inset,
@@ -34,6 +42,7 @@ class MissionBanner extends StatelessWidget {
                   fontSize: 18 * scale,
                   height: 1.1,
                   fontWeight: FontWeight.w700,
+                  color: AppVisuals.of(context).heading,
                 ),
               ),
             ),
@@ -47,7 +56,7 @@ class MissionBanner extends StatelessWidget {
                   fontFamily: 'Arial',
                   fontSize: 12 * scale,
                   height: 1.33,
-                  color: const Color(0xFF4C4C4C),
+                  color: AppVisuals.of(context).body,
                 ),
               ),
             ),
@@ -74,10 +83,10 @@ class MissionBanner extends StatelessWidget {
             ),
             Positioned(
               right: 10 * scale,
-              bottom: 7 * scale,
-              width: bounds.maxWidth * .40,
-              height: 110 * scale,
-              child: SvgPicture.asset(MissionArtwork.cat, fit: BoxFit.contain),
+              top: 15 * scale,
+              width: 152 * scale,
+              height: 127 * scale,
+              child: Image.asset(MissionArtwork.cat, fit: BoxFit.contain),
             ),
           ],
         );
@@ -110,7 +119,7 @@ class MissionCard extends StatelessWidget {
     width: double.infinity,
     height: 154 * scale,
     padding: EdgeInsets.all(8 * scale),
-    decoration: _decoration(15),
+    decoration: _decoration(context, 10, missionCard: true),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -136,9 +145,9 @@ class MissionCard extends StatelessWidget {
                   top: 5 * scale,
                   child: _Badge(
                     mission.reward,
-                    foreground: _pink,
+                    foreground: AppVisuals.of(context).accentText,
                     scale: scale,
-                    background: const Color(0xFFF9DCE8),
+                    background: AppVisuals.of(context).reward,
                   ),
                 ),
               ],
@@ -153,24 +162,30 @@ class MissionCard extends StatelessWidget {
             children: [
               Text(
                 mission.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.w700,
                   fontSize: 15 * scale,
                   height: 1.06,
+                  color: AppVisuals.of(context).heading,
                 ),
               ),
               SizedBox(height: 7 * scale),
-              Text(
-                mission.description,
-                style: TextStyle(
-                  fontFamily: 'Arial',
-                  fontSize: 11.5 * scale,
-                  height: 1.34,
-                  color: const Color(0xFF3F3F3F),
+              Expanded(
+                child: Text(
+                  mission.description,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Arial',
+                    fontSize: 11.5 * scale,
+                    height: 1.34,
+                    color: AppVisuals.of(context).body,
+                  ),
                 ),
               ),
-              const Spacer(),
               Container(
                 height: 30 * scale,
                 width: double.infinity,
@@ -228,10 +243,25 @@ class _Badge extends StatelessWidget {
   );
 }
 
-BoxDecoration _decoration(double radius) => BoxDecoration(
-  color: Colors.white,
+BoxDecoration _decoration(
+  BuildContext context,
+  double radius, {
+  bool missionCard = false,
+}) => BoxDecoration(
+  color: missionCard
+      ? (Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1F1A20)
+            : Colors.white)
+      : AppVisuals.of(context).card,
   borderRadius: BorderRadius.circular(radius),
-  boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 4)],
+  boxShadow: [
+    BoxShadow(
+      color: missionCard
+          ? const Color(0x40000000)
+          : AppVisuals.of(context).shadow,
+      blurRadius: 4,
+    ),
+  ],
 );
 
 class MissionPreview {

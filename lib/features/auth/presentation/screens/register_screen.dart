@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:walk_city/core/widgets/app_button.dart';
 import 'package:walk_city/core/widgets/custom_text_field.dart';
@@ -126,12 +127,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Stack(
           children: [
             // Фон (розовые точки)
-            Positioned(
-              child: Image.asset(
-                'assets/images/auth/bg_top.png',
-                fit: BoxFit.cover,
+            if (AppVisuals.of(context).dark)
+              const AppPageBackground()
+            else
+              Positioned(
+                child: Image.asset(
+                  'assets/images/auth/bg_top.png',
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
 
             SafeArea(
               child: SingleChildScrollView(

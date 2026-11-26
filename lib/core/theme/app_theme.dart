@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 
 class AppTheme {
   static const brand = Color(0xFFDC3978);
@@ -8,18 +9,19 @@ class AppTheme {
 
   static ThemeData _build(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    final scheme = ColorScheme.fromSeed(
-      seedColor: brand,
-      brightness: brightness,
-      surface: isDark ? const Color(0xFF201A1E) : Colors.white,
-    ).copyWith(
-      primary: brand,
-      onPrimary: Colors.white,
-      primaryContainer: isDark
-          ? const Color(0xFF54243A)
-          : const Color(0xFFFCE4ED),
-      onPrimaryContainer: isDark ? const Color(0xFFFFD8E6) : brand,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: brand,
+          brightness: brightness,
+          surface: isDark ? AppVisuals.darkBase : Colors.white,
+        ).copyWith(
+          primary: brand,
+          onPrimary: Colors.white,
+          primaryContainer: isDark
+              ? const Color(0xFF54243A)
+              : const Color(0xFFFCE4ED),
+          onPrimaryContainer: isDark ? const Color(0xFFFFD8E6) : brand,
+        );
     final textTheme = ThemeData(brightness: brightness).textTheme
         .apply(
           fontFamily: 'Arial',
@@ -60,7 +62,7 @@ class AppTheme {
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: isDark
-          ? const Color(0xFF171316)
+          ? AppVisuals.darkBase
           : const Color(0xFFFFFFFF),
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
@@ -69,8 +71,22 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
       ),
       cardTheme: CardThemeData(
-        color: scheme.surface,
+        color: isDark ? AppVisuals.darkBase : Colors.white,
         surfaceTintColor: Colors.transparent,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: isDark
+            ? const Color(0xFF573648)
+            : const Color(0xFFF9E2EC),
+        labelStyle: TextStyle(
+          color: isDark ? const Color(0xFFF9F2F6) : Colors.black,
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppVisuals.accent,
+          foregroundColor: Colors.white,
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -78,9 +94,7 @@ class AppTheme {
         hintStyle: TextStyle(color: scheme.onSurface.withValues(alpha: .55)),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: isDark
-            ? const Color(0xFF342A30)
-            : const Color(0xFF292429),
+        backgroundColor: isDark ? AppVisuals.darkBase : const Color(0xFF292429),
         contentTextStyle: const TextStyle(color: Colors.white),
       ),
     );

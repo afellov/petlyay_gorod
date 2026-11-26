@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -24,9 +22,7 @@ class CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final islandFill = isDark
-        ? const Color(0xFF201A1E).withValues(alpha: .82)
-        : Colors.white.withValues(alpha: .8);
+    final islandFill = isDark ? const Color(0xFF1F1A20) : Colors.white;
     final textColor = isDark ? const Color(0xFFF5EDF1) : Colors.black;
 
     return SafeArea(
@@ -40,15 +36,18 @@ class CustomBottomNavBar extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final slotWidth = (constraints.maxWidth - 12) / _items.length;
+              final activeWidth =
+                  84 * (constraints.maxWidth / 408).clamp(0.0, 1.0);
               final activeLeft =
-                  6 + slotWidth * currentIndex + (slotWidth - 84) / 2;
+                  6 + slotWidth * currentIndex + (slotWidth - activeWidth) / 2;
 
               return DecoratedBox(
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(50)),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0x40000000),
+                      // Figma shadow: #000000 at 14.5% opacity.
+                      color: Color(0x25000000),
                       offset: Offset(0, 1),
                       blurRadius: 9.4,
                       spreadRadius: 1,
@@ -57,48 +56,45 @@ class CustomBottomNavBar extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 4.8, sigmaY: 4.8),
-                    child: ColoredBox(
-                      color: islandFill,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          if (currentIndex >= 0 && currentIndex < _items.length)
-                            Positioned(
-                              left: activeLeft,
-                              top: 3,
-                              width: 84,
-                              height: 58,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: AppColors.active.withValues(alpha: .2),
-                                  borderRadius: BorderRadius.circular(35),
-                                ),
+                  child: ColoredBox(
+                    color: islandFill,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (currentIndex >= 0 && currentIndex < _items.length)
+                          Positioned(
+                            left: activeLeft,
+                            top: 3,
+                            width: activeWidth,
+                            height: 58,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: AppColors.active.withValues(alpha: .2),
+                                borderRadius: BorderRadius.circular(35),
                               ),
                             ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
-                            child: Row(
-                              children: [
-                                for (
-                                  var index = 0;
-                                  index < _items.length;
-                                  index++
-                                )
-                                  Expanded(
-                                    child: _NavItem(
-                                      data: _items[index],
-                                      selected: currentIndex == index,
-                                      textColor: textColor,
-                                      onTap: () => onTap(index),
-                                    ),
-                                  ),
-                              ],
-                            ),
                           ),
-                        ],
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          child: Row(
+                            children: [
+                              for (
+                                var index = 0;
+                                index < _items.length;
+                                index++
+                              )
+                                Expanded(
+                                  child: _NavItem(
+                                    data: _items[index],
+                                    selected: currentIndex == index,
+                                    textColor: textColor,
+                                    onTap: () => onTap(index),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

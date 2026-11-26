@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart'; // Обязательно импортируй это!
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:walk_city/core/screens/main_screen.dart';
 import 'package:walk_city/core/widgets/app_button.dart';
@@ -63,7 +64,10 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         child: Stack(
           children: [
-            Positioned(child: Image.asset("assets/images/auth/bg_city.png")),
+            if (AppVisuals.of(context).dark)
+              const AppPageBackground()
+            else
+              Positioned(child: Image.asset("assets/images/auth/bg_city.png")),
 
             SafeArea(
               child: SingleChildScrollView(

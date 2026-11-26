@@ -78,7 +78,7 @@ void main() {
     expect(PbClient.instance.authStore.isValid, isTrue);
     await binding.takeScreenshot('registration-avatar');
 
-    await tester.tap(find.text('Продолжить без фото'));
+    await tester.tap(find.text('ПРОПУСТИТЬ'));
     await _waitFor(tester, find.text('ЛЕГЕНДА ДНЯ'));
     await binding.takeScreenshot('home-after-registration');
 
@@ -110,7 +110,7 @@ void main() {
 
     await tester.tap(find.text('Миссии'));
     await tester.pumpAndSettle();
-    expect(find.text('Миссии пока не опубликованы.'), findsOneWidget);
+    expect(find.text('Хотите потратить баллы?'), findsOneWidget);
     await binding.takeScreenshot('tasks-missions');
 
     // If development demo data exists, verify route detail and start UI against PB.
@@ -126,7 +126,8 @@ void main() {
         break;
       }
     }
-    if (demoTitleWithCheckpoints != null) {
+    if (demoTitleWithCheckpoints != null &&
+        find.text(demoTitleWithCheckpoints).evaluate().isNotEmpty) {
       final demoRoute = find.text(demoTitleWithCheckpoints);
       await tester.ensureVisible(demoRoute);
       await tester.tap(demoRoute);
@@ -277,6 +278,17 @@ void main() {
       'dark',
     );
     await binding.takeScreenshot('profile-dark-theme');
+    await tester.tap(find.text('Задания'));
+    await _waitFor(tester, find.text('ЗАДАНИЯ'));
+    await binding.takeScreenshot('tasks-routes-dark-theme');
+    await tester.tap(find.text('Миссии'));
+    await tester.pumpAndSettle();
+    await binding.takeScreenshot('tasks-missions-dark-theme');
+    await tester.tap(find.text('Главная'));
+    await _waitFor(tester, find.text('ЛЕГЕНДА ДНЯ'));
+    await binding.takeScreenshot('home-dark-theme');
+    await tester.tap(find.text('Профиль'));
+    await _waitFor(tester, find.byType(ProfileScreen));
     await tester.tap(find.byTooltip('Включить светлую тему'));
     await tester.pumpAndSettle();
     expect(

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:walk_city/core/theme/app_assets.dart';
 import 'package:walk_city/core/widgets/custom_app_bar.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 
-const _pink = Color(0xFFE5367A);
+const _pink = AppVisuals.accent;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,36 +19,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AppVisuals.of(context).page,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Opacity(
-                opacity: .22,
-                child: Image.asset(
-                  'assets/images/auth/bg_avatar.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.paddingOf(context).top,
-            child: ColoredBox(color: Theme.of(context).colorScheme.surface),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                const CustomAppBar(
-                  title: 'ГЛАВНАЯ',
-                  showNotifications: true,
-                  showUnreadDot: true,
-                ),
-                Expanded(
+          const AppPageBackground(),
+          Column(
+            children: [
+              const CustomAppBar(title: 'ГЛАВНАЯ', showUnreadDot: true),
+              Expanded(
+                child: SafeArea(
+                  top: false,
+                  bottom: false,
                   child: CustomScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
@@ -69,8 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -87,29 +71,33 @@ class _LegendSection extends StatelessWidget {
     children: [
       Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
               'ЛЕГЕНДА ДНЯ',
               style: TextStyle(
                 fontFamily: 'UNCAGE',
                 fontSize: 18,
-                color: Colors.black,
+                color: AppVisuals.of(context).heading,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9DCE8),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Text(
-              'Сменится через: 12ч. 32мин.',
-              style: TextStyle(
-                color: _pink,
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppVisuals.of(context).reward,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Text(
+                'Сменится через: 12ч. 32мин.',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppVisuals.of(context).accentText,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -128,7 +116,7 @@ class _LegendCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: AppVisuals.of(context).card,
       borderRadius: BorderRadius.circular(18),
       boxShadow: const [
         BoxShadow(
@@ -166,6 +154,7 @@ class _LegendCard extends StatelessWidget {
                     fontFamily: 'UNCAGE',
                     fontSize: 8,
                     fontWeight: FontWeight.w700,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -177,13 +166,13 @@ class _LegendCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Кузнецкая крепость',
                 style: TextStyle(
                   fontFamily: 'Arial',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: AppVisuals.of(context).heading,
                 ),
               ),
               const SizedBox(height: 4),
@@ -193,8 +182,8 @@ class _LegendCard extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 child: expanded
                     ? const _LegendDetails()
-                    : const Padding(
-                        padding: EdgeInsets.only(top: 2),
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 2),
                         child: Text(
                           'Рассказываем, как деревянный острог превратился в каменный бастион и почему его пушки так и остались мирными...',
                           maxLines: 3,
@@ -202,7 +191,7 @@ class _LegendCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 9,
                             height: 1.28,
-                            color: Color(0xFF555555),
+                            color: AppVisuals.of(context).body,
                           ),
                         ),
                       ),
@@ -250,11 +239,11 @@ class _LegendCard extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(width: 8),
-                  const _Metric(icon: Icons.favorite, count: '15.6к'),
+                  const _Metric(asset: AppAssets.heart, count: '15.6к'),
                   const SizedBox(width: 5),
-                  const _Metric(icon: Icons.chat_bubble, count: '1200'),
+                  const _Metric(asset: AppAssets.comment, count: '1200'),
                   const SizedBox(width: 5),
-                  _RoundAction(icon: Icons.reply_rounded),
+                  const _RoundAction(asset: AppAssets.share),
                 ],
               ),
             ],
@@ -269,25 +258,25 @@ class _LegendDetails extends StatelessWidget {
   const _LegendDetails();
 
   @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.only(top: 8),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 8),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: Color(0xFFF9DCE8),
+            color: AppVisuals.of(context).reward,
             borderRadius: BorderRadius.horizontal(right: Radius.circular(10)),
             border: Border(left: BorderSide(color: _pink, width: 6)),
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Text(
               'Кузнецкая крепость — это жемчужина Новокузнецка, сохранившая дух прошлых эпох.',
               style: TextStyle(
                 fontSize: 12,
                 height: 1.2,
-                color: Color(0xFF444444),
+                color: AppVisuals.of(context).body,
               ),
             ),
           ),
@@ -326,21 +315,21 @@ class _LegendBullet extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '•  ',
           style: TextStyle(
             fontSize: 12,
             height: 1.25,
-            color: Color(0xFF555555),
+            color: AppVisuals.of(context).body,
           ),
         ),
         Expanded(
           child: Text.rich(
             TextSpan(
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 height: 1.25,
-                color: Color(0xFF555555),
+                color: AppVisuals.of(context).body,
               ),
               children: [
                 TextSpan(text: '$title '),
@@ -355,26 +344,26 @@ class _LegendBullet extends StatelessWidget {
 }
 
 class _Metric extends StatelessWidget {
-  const _Metric({required this.icon, required this.count});
-  final IconData icon;
+  const _Metric({required this.asset, required this.count});
+  final String asset;
   final String count;
   @override
   Widget build(BuildContext context) => Container(
     height: 28,
     padding: const EdgeInsets.symmetric(horizontal: 8),
     decoration: BoxDecoration(
-      color: const Color(0xFFF9DCE8),
+      color: AppVisuals.of(context).reward,
       borderRadius: BorderRadius.circular(18),
     ),
     child: Row(
       children: [
-        Icon(icon, color: _pink, size: 15),
+        SvgPicture.asset(asset, width: 15, height: 15),
         const SizedBox(width: 5),
         Text(
           count,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 9,
-            color: Color(0xFF39313A),
+            color: AppVisuals.of(context).heading,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -384,17 +373,17 @@ class _Metric extends StatelessWidget {
 }
 
 class _RoundAction extends StatelessWidget {
-  const _RoundAction({required this.icon});
-  final IconData icon;
+  const _RoundAction({required this.asset});
+  final String asset;
   @override
   Widget build(BuildContext context) => Container(
     width: 28,
     height: 28,
-    decoration: const BoxDecoration(
-      color: Color(0xFFF9DCE8),
+    decoration: BoxDecoration(
+      color: AppVisuals.of(context).reward,
       shape: BoxShape.circle,
     ),
-    child: Icon(icon, color: _pink, size: 16),
+    child: Center(child: SvgPicture.asset(asset, width: 16, height: 16)),
   );
 }
 
@@ -405,7 +394,7 @@ class _ShareLegendBanner extends StatelessWidget {
     height: 48,
     padding: const EdgeInsets.symmetric(horizontal: 8),
     decoration: BoxDecoration(
-      color: const Color(0xFFF9E4EC),
+      color: AppVisuals.of(context).pill,
       borderRadius: BorderRadius.circular(28),
     ),
     child: Row(
@@ -413,20 +402,30 @@ class _ShareLegendBanner extends StatelessWidget {
         Container(
           width: 34,
           height: 34,
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: AppVisuals.of(context).card,
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.camera_alt_outlined, color: _pink, size: 19),
+          child: Center(
+            child: SvgPicture.asset(
+              AppAssets.camera,
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                AppVisuals.of(context).accentText,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Text(
             'Поделитесь своей легендой',
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF54464D),
+              color: AppVisuals.of(context).heading,
             ),
           ),
         ),
@@ -457,13 +456,13 @@ class _EventsSection extends StatelessWidget {
     children: [
       Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Text(
               'АФИША',
               style: TextStyle(
                 fontFamily: 'UNCAGE',
                 fontSize: 18,
-                color: Colors.black,
+                color: AppVisuals.of(context).heading,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -502,7 +501,7 @@ class _EventCard extends StatelessWidget {
     width: 174,
     child: Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppVisuals.of(context).card,
         borderRadius: BorderRadius.circular(15),
         boxShadow: const [
           BoxShadow(
@@ -550,6 +549,7 @@ class _EventCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
+                          color: Colors.black,
                         ),
                       ),
                     ],
@@ -589,26 +589,26 @@ class _EventCard extends StatelessWidget {
                   event.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     height: 1.05,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: AppVisuals.of(context).heading,
                   ),
                 ),
                 const SizedBox(height: 5),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 13, color: _pink),
+                    SvgPicture.asset(AppAssets.mapPin, width: 13, height: 13),
                     const SizedBox(width: 3),
                     Expanded(
                       child: Text(
                         event.place,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 8,
-                          color: Colors.black,
+                          color: AppVisuals.of(context).body,
                         ),
                       ),
                     ),
