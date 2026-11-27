@@ -199,6 +199,7 @@ class _ActiveRouteScreenState extends State<ActiveRouteScreen> {
           image: DecorationImage(
             image: AssetImage(AppVisuals.of(context).background),
             fit: BoxFit.cover,
+            opacity: AppVisuals.backgroundOpacity,
             colorFilter: AppVisuals.of(context).dark
                 ? const ColorFilter.mode(
                     AppVisuals.darkBackgroundTint,

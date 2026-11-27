@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 
 class ProfileActionButtons extends StatelessWidget {
   final VoidCallback onEditPhoto;
@@ -50,6 +51,9 @@ class ProfileActionButtons extends StatelessWidget {
           color: colors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: colors.outlineVariant),
+          boxShadow: [
+            BoxShadow(color: AppVisuals.of(context).shadow, blurRadius: 4),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

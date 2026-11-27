@@ -73,6 +73,9 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: isDark ? AppVisuals.darkBase : Colors.white,
         surfaceTintColor: Colors.transparent,
+        shadowColor: isDark
+            ? Colors.white.withValues(alpha: .25)
+            : Colors.black.withValues(alpha: .25),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: isDark

@@ -118,12 +118,8 @@ class _LegendCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppVisuals.of(context).card,
       borderRadius: BorderRadius.circular(18),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x22000000),
-          blurRadius: 8,
-          offset: Offset(0, 2),
-        ),
+      boxShadow: [
+        BoxShadow(color: AppVisuals.of(context).shadow, blurRadius: 4),
       ],
     ),
     clipBehavior: Clip.antiAlias,
@@ -503,12 +499,8 @@ class _EventCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppVisuals.of(context).card,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x22000000),
-            blurRadius: 5,
-            offset: Offset(0, 1),
-          ),
+        boxShadow: [
+          BoxShadow(color: AppVisuals.of(context).shadow, blurRadius: 4),
         ],
       ),
       clipBehavior: Clip.antiAlias,

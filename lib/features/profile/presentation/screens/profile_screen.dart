@@ -67,6 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           image: DecorationImage(
             image: AssetImage(AppVisuals.of(context).background),
             fit: BoxFit.cover,
+            opacity: AppVisuals.backgroundOpacity,
             colorFilter: AppVisuals.of(context).dark
                 ? const ColorFilter.mode(
                     AppVisuals.darkBackgroundTint,

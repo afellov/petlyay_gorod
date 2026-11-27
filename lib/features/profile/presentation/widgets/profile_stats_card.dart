@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:walk_city/core/theme/app_visuals.dart';
 
 class ProfileStatsCard extends StatelessWidget {
   final int tasksCompleted;
@@ -19,6 +20,9 @@ class ProfileStatsCard extends StatelessWidget {
         color: colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colors.outlineVariant),
+        boxShadow: [
+          BoxShadow(color: AppVisuals.of(context).shadow, blurRadius: 4),
+        ],
       ),
       child: Row(
         children: [

@@ -254,14 +254,7 @@ BoxDecoration _decoration(
             : Colors.white)
       : AppVisuals.of(context).card,
   borderRadius: BorderRadius.circular(radius),
-  boxShadow: [
-    BoxShadow(
-      color: missionCard
-          ? const Color(0x40000000)
-          : AppVisuals.of(context).shadow,
-      blurRadius: 4,
-    ),
-  ],
+  boxShadow: [BoxShadow(color: AppVisuals.of(context).shadow, blurRadius: 4)],
 );
 
 class MissionPreview {
