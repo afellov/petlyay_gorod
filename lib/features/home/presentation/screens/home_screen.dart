@@ -6,6 +6,8 @@ import 'package:walk_city/core/theme/app_visuals.dart';
 import 'package:walk_city/features/events/data/event_data.dart';
 
 const _pink = AppVisuals.accent;
+const _darkLegendSurface = Color(0xFF462134);
+const _darkAddLegend = Color(0xFF5E223C);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.onShowAllEvents});
@@ -89,7 +91,9 @@ class _LegendSection extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
               decoration: BoxDecoration(
-                color: AppVisuals.of(context).reward,
+                color: AppVisuals.of(context).dark
+                    ? _darkLegendSurface
+                    : AppVisuals.of(context).reward,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Text(
@@ -97,7 +101,7 @@ class _LegendSection extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: AppVisuals.of(context).accentText,
+                  color: _pink,
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
                 ),
@@ -351,7 +355,9 @@ class _Metric extends StatelessWidget {
     height: 28,
     padding: const EdgeInsets.symmetric(horizontal: 8),
     decoration: BoxDecoration(
-      color: AppVisuals.of(context).reward,
+      color: AppVisuals.of(context).dark
+          ? _darkLegendSurface
+          : AppVisuals.of(context).reward,
       borderRadius: BorderRadius.circular(18),
     ),
     child: Row(
@@ -379,7 +385,9 @@ class _RoundAction extends StatelessWidget {
     width: 28,
     height: 28,
     decoration: BoxDecoration(
-      color: AppVisuals.of(context).reward,
+      color: AppVisuals.of(context).dark
+          ? _darkLegendSurface
+          : AppVisuals.of(context).reward,
       shape: BoxShape.circle,
     ),
     child: Center(child: SvgPicture.asset(asset, width: 16, height: 16)),
@@ -393,7 +401,9 @@ class _ShareLegendBanner extends StatelessWidget {
     height: 48,
     padding: const EdgeInsets.symmetric(horizontal: 8),
     decoration: BoxDecoration(
-      color: AppVisuals.of(context).pill,
+      color: AppVisuals.of(context).dark
+          ? _darkLegendSurface
+          : AppVisuals.of(context).pill,
       borderRadius: BorderRadius.circular(28),
     ),
     child: Row(
@@ -431,7 +441,9 @@ class _ShareLegendBanner extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
           decoration: BoxDecoration(
-            color: const Color(0xFFE86A9A),
+            color: AppVisuals.of(context).dark
+                ? _darkAddLegend
+                : const Color(0xFFE86A9A),
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Text(
