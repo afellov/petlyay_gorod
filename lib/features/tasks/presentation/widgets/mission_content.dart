@@ -68,7 +68,9 @@ class MissionBanner extends StatelessWidget {
                 height: 28 * scale,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE9669B),
+                  color: AppVisuals.of(context).dark
+                      ? const Color(0xFF462134)
+                      : const Color(0xFFE9669B),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(

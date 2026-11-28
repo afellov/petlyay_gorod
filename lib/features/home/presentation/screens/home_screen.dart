@@ -88,22 +88,26 @@ class _LegendSection extends StatelessWidget {
             ),
           ),
           Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppVisuals.of(context).dark
-                    ? _darkLegendSurface
-                    : AppVisuals.of(context).reward,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Text(
-                'Сменится через: 12ч. 32мин.',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: _pink,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
+            fit: FlexFit.tight,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppVisuals.of(context).dark
+                      ? _darkLegendSurface
+                      : AppVisuals.of(context).reward,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Text(
+                  'Сменится через: 12ч. 32мин.',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: _pink,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),

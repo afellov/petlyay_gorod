@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:walk_city/core/theme/app_assets.dart';
@@ -6,6 +8,7 @@ import 'package:walk_city/core/widgets/custom_app_bar.dart';
 import 'package:walk_city/features/tasks/presentation/widgets/mission_content.dart';
 
 const _pink = Color(0xFFDC3978);
+const _darkTaskSurface = Color(0xFF462134);
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -123,66 +126,91 @@ class _Tabs extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       Expanded(
-        child: GestureDetector(
+        child: _GlassTaskTab(
+          label: 'Маршруты',
+          scale: scale,
+          selected: !showMissions,
           onTap: () => onSelect(false),
-          child: Container(
-            height: 40 * scale,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: showMissions
-                  ? AppVisuals.of(context).card
-                  : AppVisuals.of(context).pill,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: showMissions
-                  ? const [BoxShadow(color: Color(0x24000000), blurRadius: 5)]
-                  : null,
-            ),
-            child: Text(
-              'Маршруты',
-              style: TextStyle(
-                fontFamily: 'Arial',
-                fontWeight: FontWeight.w700,
-                fontSize: 17 * scale,
-                color: showMissions
-                    ? AppVisuals.of(context).heading
-                    : AppVisuals.of(context).accentText,
-              ),
-            ),
-          ),
         ),
       ),
       SizedBox(width: 12 * scale),
       Expanded(
-        child: GestureDetector(
+        child: _GlassTaskTab(
+          label: 'Миссии',
+          scale: scale,
+          selected: showMissions,
           onTap: () => onSelect(true),
-          child: Container(
-            height: 40 * scale,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: showMissions
-                  ? AppVisuals.of(context).pill
-                  : AppVisuals.of(context).card,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: showMissions
-                  ? null
-                  : const [BoxShadow(color: Color(0x24000000), blurRadius: 5)],
-            ),
-            child: Text(
-              'Миссии',
-              style: TextStyle(
-                fontFamily: 'Arial',
-                fontWeight: FontWeight.w700,
-                fontSize: 17 * scale,
-                color: showMissions
-                    ? AppVisuals.of(context).accentText
-                    : AppVisuals.of(context).heading,
+        ),
+      ),
+    ],
+  );
+}
+
+class _GlassTaskTab extends StatelessWidget {
+  const _GlassTaskTab({
+    required this.label,
+    required this.scale,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final double scale;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final visuals = AppVisuals.of(context);
+    final radius = BorderRadius.circular(25);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: !visuals.dark && !selected
+            ? const [BoxShadow(color: Color(0x24000000), blurRadius: 5)]
+            : null,
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: Container(
+              height: 40 * scale,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: visuals.dark
+                    ? selected
+                          ? _darkTaskSurface.withValues(alpha: .85)
+                          : AppVisuals.darkBase.withValues(alpha: .78)
+                    : selected
+                    ? visuals.pill
+                    : visuals.card,
+                borderRadius: radius,
+                border: visuals.dark
+                    ? Border.all(
+                        color: Colors.white.withValues(alpha: .10),
+                        width: .5,
+                      )
+                    : null,
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Arial',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17 * scale,
+                  color: selected ? _pink : visuals.heading,
+                ),
               ),
             ),
           ),
         ),
       ),
-    ],
-  );
+    );
+  }
 }
 
 // The image slot follows Figma. Set this path when the original map art is supplied.
@@ -237,7 +265,9 @@ class _RandomMarkersBanner extends StatelessWidget {
                 height: 28 * scale,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE9669B),
+                  color: AppVisuals.of(context).dark
+                      ? _darkTaskSurface
+                      : const Color(0xFFE9669B),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -442,9 +472,7 @@ class _SearchFilters extends StatelessWidget {
             fontFamily: 'Arial',
             fontSize: 14 * scale,
             fontWeight: FontWeight.w700,
-            color: missions
-                ? AppVisuals.of(context).accentText
-                : AppVisuals.of(context).heading,
+            color: missions ? _pink : AppVisuals.of(context).heading,
           ),
         ),
       ),
@@ -483,7 +511,9 @@ class _FilterBox extends StatelessWidget {
     alignment: Alignment.center,
     decoration: BoxDecoration(
       color: highlighted
-          ? AppVisuals.of(context).pill
+          ? AppVisuals.of(context).dark
+                ? _darkTaskSurface
+                : AppVisuals.of(context).pill
           : AppVisuals.of(context).card,
       borderRadius: BorderRadius.circular(12),
       boxShadow: const [BoxShadow(color: Color(0x23000000), blurRadius: 4)],
@@ -602,13 +632,15 @@ class _RouteCard extends StatelessWidget {
                           vertical: 3 * scale,
                         ),
                         decoration: BoxDecoration(
-                          color: AppVisuals.of(context).reward,
+                          color: AppVisuals.of(context).dark
+                              ? _darkTaskSurface
+                              : AppVisuals.of(context).reward,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
                           reward,
                           style: TextStyle(
-                            color: AppVisuals.of(context).accentText,
+                            color: _pink,
                             fontSize: 11 * scale,
                             fontWeight: FontWeight.w700,
                           ),
@@ -669,7 +701,9 @@ class _RouteCard extends StatelessWidget {
                     width: 30 * scale,
                     height: 30 * scale,
                     decoration: BoxDecoration(
-                      color: AppVisuals.of(context).reward,
+                      color: AppVisuals.of(context).dark
+                          ? _darkTaskSurface
+                          : AppVisuals.of(context).reward,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
