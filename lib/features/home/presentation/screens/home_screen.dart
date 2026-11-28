@@ -3,11 +3,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:walk_city/core/theme/app_assets.dart';
 import 'package:walk_city/core/widgets/custom_app_bar.dart';
 import 'package:walk_city/core/theme/app_visuals.dart';
+import 'package:walk_city/features/events/data/event_data.dart';
 
 const _pink = AppVisuals.accent;
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.onShowAllEvents});
+
+  final VoidCallback? onShowAllEvents;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -46,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(height: 12),
                             _ShareLegendBanner(),
                             SizedBox(height: 20),
-                            _EventsSection(),
+                            _EventsSection(onShowAll: widget.onShowAllEvents),
                           ],
                         ),
                       ),
@@ -446,7 +449,8 @@ class _ShareLegendBanner extends StatelessWidget {
 }
 
 class _EventsSection extends StatelessWidget {
-  const _EventsSection();
+  const _EventsSection({this.onShowAll});
+  final VoidCallback? onShowAll;
   @override
   Widget build(BuildContext context) => Column(
     children: [
@@ -463,13 +467,20 @@ class _EventsSection extends StatelessWidget {
               ),
             ),
           ),
-          const Text(
-            'Смотреть все ›',
-            style: TextStyle(
-              color: _pink,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: .15,
+          GestureDetector(
+            onTap: onShowAll,
+            behavior: HitTestBehavior.opaque,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                'Смотреть все ›',
+                style: TextStyle(
+                  color: _pink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: .15,
+                ),
+              ),
             ),
           ),
         ],
@@ -490,7 +501,7 @@ class _EventsSection extends StatelessWidget {
 
 class _EventCard extends StatelessWidget {
   const _EventCard({required this.event});
-  final _Event event;
+  final EventData event;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -615,41 +626,4 @@ class _EventCard extends StatelessWidget {
   );
 }
 
-class _Event {
-  const _Event(
-    this.asset,
-    this.day,
-    this.month,
-    this.kind,
-    this.title,
-    this.place,
-  );
-  final String asset, day, month, kind, title, place;
-}
-
-const _events = <_Event>[
-  _Event(
-    'assets/images/home/event_2.png',
-    '24',
-    'мая',
-    'лекция',
-    'История Сибири в деталях',
-    'Краеведческий музей',
-  ),
-  _Event(
-    'assets/images/home/event_1.png',
-    '10',
-    'апреля',
-    'экскурсия',
-    'Прогулка по Кузнецкой крепости',
-    'Советская улица',
-  ),
-  _Event(
-    'assets/images/home/event_2.png',
-    '13',
-    'января',
-    'лекция',
-    'История Сибири в деталях',
-    'Краеведческий музей',
-  ),
-];
+const _events = homeEvents;

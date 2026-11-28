@@ -4,6 +4,7 @@ import 'package:walk_city/features/home/presentation/screens/home_screen.dart';
 import 'package:walk_city/features/map/presentation/screens/map_screen.dart';
 import 'package:walk_city/features/profile/presentation/screens/profile_screen.dart';
 import 'package:walk_city/features/tasks/presentation/screens/tasks_screen.dart';
+import 'package:walk_city/features/events/presentation/screens/events_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,6 +15,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  bool _showEvents = false;
 
   // Список страниц.
   // При переключении индексов в навбаре будет показываться нужная страница
@@ -28,21 +30,36 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: _currentIndex == 0,
+      canPop: _currentIndex == 0 && !_showEvents,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && _currentIndex != 0) {
+        if (!didPop && _showEvents) {
+          setState(() => _showEvents = false);
+        } else if (!didPop && _currentIndex != 0) {
           setState(() => _currentIndex = 0);
         }
       },
       child: Scaffold(
         // Keep the area around the floating island transparent.
         extendBody: true,
-        body: IndexedStack(index: _currentIndex, children: _screens),
+        body: _showEvents
+            ? EventsScreen(onBack: () => setState(() => _showEvents = false))
+            : IndexedStack(
+                index: _currentIndex,
+                children: [
+                  HomeScreen(
+                    onShowAllEvents: () => setState(() => _showEvents = true),
+                  ),
+                  ..._screens.skip(1),
+                ],
+              ),
         bottomNavigationBar: CustomBottomNavBar(
           currentIndex: _currentIndex,
           onTap: (index) {
             if (index == 3) return;
-            setState(() => _currentIndex = index);
+            setState(() {
+              _currentIndex = index;
+              _showEvents = false;
+            });
           },
         ),
       ),
