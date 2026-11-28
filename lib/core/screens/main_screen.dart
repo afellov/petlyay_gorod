@@ -42,7 +42,13 @@ class _MainScreenState extends State<MainScreen> {
         // Keep the area around the floating island transparent.
         extendBody: true,
         body: _showEvents
-            ? EventsScreen(onBack: () => setState(() => _showEvents = false))
+            ? EventsScreen(
+                onBack: () => setState(() => _showEvents = false),
+                onOpenMap: () => setState(() {
+                  _showEvents = false;
+                  _currentIndex = 2;
+                }),
+              )
             : IndexedStack(
                 index: _currentIndex,
                 children: [

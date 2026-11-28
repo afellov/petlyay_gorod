@@ -36,7 +36,9 @@ class AppPageBackground extends StatelessWidget {
   Widget build(BuildContext context) => Positioned.fill(
     child: IgnorePointer(
       child: Opacity(
-        opacity: AppVisuals.backgroundOpacity,
+        opacity: AppVisuals.of(context).dark
+            ? .40
+            : AppVisuals.backgroundOpacity,
         child: Image.asset(
           AppVisuals.of(context).background,
           fit: BoxFit.cover,

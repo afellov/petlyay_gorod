@@ -6,11 +6,24 @@ import 'package:walk_city/core/widgets/custom_app_bar.dart';
 import 'package:walk_city/features/events/data/event_data.dart';
 
 const _darkFilterFill = Color(0xFF4D2639);
+const _lightShadows = [BoxShadow(color: Color(0x40000000), blurRadius: 4)];
 
-class EventsScreen extends StatelessWidget {
-  const EventsScreen({super.key, required this.onBack});
+class EventsScreen extends StatefulWidget {
+  const EventsScreen({
+    super.key,
+    required this.onBack,
+    required this.onOpenMap,
+  });
 
   final VoidCallback onBack;
+  final VoidCallback onOpenMap;
+
+  @override
+  State<EventsScreen> createState() => _EventsScreenState();
+}
+
+class _EventsScreenState extends State<EventsScreen> {
+  int? expandedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +53,7 @@ class EventsScreen extends StatelessWidget {
                         ),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: _BackButton(onPressed: onBack),
+                          child: _BackButton(onPressed: widget.onBack),
                         ),
                       ),
                       Padding(
@@ -63,9 +76,29 @@ class EventsScreen extends StatelessWidget {
                           itemCount: allEvents.length,
                           separatorBuilder: (_, _) =>
                               SizedBox(height: 8 * scale),
-                          itemBuilder: (context, index) => _EventListCard(
-                            event: allEvents[index],
-                            scale: scale,
+                          itemBuilder: (context, index) => AnimatedCrossFade(
+                            duration: const Duration(milliseconds: 320),
+                            sizeCurve: Curves.easeInOutCubic,
+                            firstCurve: Curves.easeOut,
+                            secondCurve: Curves.easeIn,
+                            crossFadeState: expandedIndex == index
+                                ? CrossFadeState.showSecond
+                                : CrossFadeState.showFirst,
+                            firstChild: GestureDetector(
+                              onTap: () =>
+                                  setState(() => expandedIndex = index),
+                              child: _EventListCard(
+                                event: allEvents[index],
+                                scale: scale,
+                              ),
+                            ),
+                            secondChild: _ExpandedEventCard(
+                              event: allEvents[index],
+                              scale: scale,
+                              onCollapse: () =>
+                                  setState(() => expandedIndex = null),
+                              onOpenMap: widget.onOpenMap,
+                            ),
                           ),
                         ),
                       ),
@@ -89,7 +122,7 @@ class _BackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Material(
     color: AppVisuals.of(context).card,
-    elevation: 1,
+    elevation: AppVisuals.of(context).dark ? 0 : 1,
     borderRadius: BorderRadius.circular(7),
     child: InkWell(
       onTap: onPressed,
@@ -190,6 +223,7 @@ class _FilterIcon extends StatelessWidget {
                   : visuals.pill
             : visuals.card,
         borderRadius: BorderRadius.circular(10 * scale),
+        boxShadow: visuals.dark ? null : _lightShadows,
       ),
       alignment: Alignment.center,
       child: SvgPicture.asset(
@@ -231,6 +265,7 @@ class _FilterPill extends StatelessWidget {
                   : visuals.pill
             : visuals.card,
         borderRadius: BorderRadius.circular(10 * scale),
+        boxShadow: visuals.dark ? null : _lightShadows,
       ),
       alignment: Alignment.center,
       child: child,
@@ -261,6 +296,7 @@ class _EventListCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: visuals.card,
         borderRadius: BorderRadius.circular(16 * scale),
+        boxShadow: visuals.dark ? null : _lightShadows,
       ),
       child: Row(
         children: [
@@ -349,6 +385,185 @@ class _EventListCard extends StatelessWidget {
               color: AppVisuals.accent,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExpandedEventCard extends StatelessWidget {
+  const _ExpandedEventCard({
+    required this.event,
+    required this.scale,
+    required this.onCollapse,
+    required this.onOpenMap,
+  });
+
+  final EventData event;
+  final double scale;
+  final VoidCallback onCollapse;
+  final VoidCallback onOpenMap;
+
+  @override
+  Widget build(BuildContext context) {
+    final visuals = AppVisuals.of(context);
+    return Container(
+      padding: EdgeInsets.all(6 * scale),
+      decoration: BoxDecoration(
+        color: visuals.card,
+        borderRadius: BorderRadius.circular(16 * scale),
+        border: Border.all(color: visuals.heading.withValues(alpha: .1)),
+        boxShadow: visuals.dark ? null : _lightShadows,
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10 * scale),
+                      child: SizedBox(
+                        height: 96 * scale,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(event.asset, fit: BoxFit.cover),
+                            Positioned(
+                              left: 5 * scale,
+                              top: 4 * scale,
+                              child: _DateBadge(event: event, scale: scale),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        10 * scale,
+                        7 * scale,
+                        10 * scale,
+                        7 * scale,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              event.title,
+                              maxLines: 2,
+                              style: TextStyle(
+                                color: visuals.heading,
+                                fontSize: 14 * scale,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          _EventKind(event: event, scale: scale),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(10 * scale),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: visuals.heading.withValues(alpha: .12),
+                        ),
+                        borderRadius: BorderRadius.circular(10 * scale),
+                      ),
+                      child: Text(
+                        event.description,
+                        style: TextStyle(
+                          color: visuals.body,
+                          fontSize: 11 * scale,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 13 * scale),
+              Padding(
+                padding: EdgeInsets.only(top: 36 * scale),
+                child: InkWell(
+                  onTap: onCollapse,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 24 * scale,
+                    height: 24 * scale,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: visuals.dark
+                          ? _darkFilterFill.withValues(alpha: .7)
+                          : visuals.pill,
+                      border: Border.all(color: AppVisuals.accent, width: .5),
+                    ),
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 16 * scale,
+                      color: AppVisuals.accent,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 6 * scale),
+            ],
+          ),
+          SizedBox(height: 9 * scale),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 7 * scale),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  AppAssets.mapPin,
+                  width: 17 * scale,
+                  height: 17 * scale,
+                ),
+                SizedBox(width: 7 * scale),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      event.place,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: visuals.heading,
+                        fontSize: 16 * scale,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8 * scale),
+                SizedBox(
+                  width: (MediaQuery.sizeOf(context).width - 32) * .40,
+                  height: 27 * scale,
+                  child: ElevatedButton(
+                    onPressed: onOpenMap,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppVisuals.accent,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(horizontal: 15 * scale),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: Text(
+                      'Начать маршрут',
+                      style: TextStyle(
+                        fontSize: 9 * scale,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 4 * scale),
         ],
       ),
     );
